@@ -6,25 +6,25 @@ Library    SeleniumLibrary
 ${URL}    http://livraison3.testacademy.fr/
 ${navigateur}    Chrome
 
+
 # =========================
 # CONNEXION
 # =========================
 ${lien se connecter}    xpath=//a[contains(text(),'Se connecter')]
-${champ nom_utilisateur}    name=username
-${champ mot de passe}    name=password
-${bouton se connecter}    xpath=(//button[@type='submit'])[5]
+${champ nom_utilisateur}    css=#modal-login input[name='username']
+${champ mot de passe}    css=#modal-login input[name='password']
+${bouton se connecter}    css=#modal-login button[type='submit']
 ${zone erreur}    css=#modal-login .error
 ${titre tableau de bord}    Tableau de bord - Livraison 3
 
-${champ utilisateur valide}    nico
-${champ mot de passe valide}    test
+${champ utilisateur valide}    %{HOMEY_VOYAGEUR_USER}
+${champ mot de passe valide}    %{HOMEY_VOYAGEUR_PASSWORD}
 
 
 # =========================
 # RECHERCHE / ANNONCE
 # =========================
 ${bouton chercher}    css=.search-button > .btn-primary:nth-child(1)
-
 ${premiere annonce}    css=.infobox_trigger:nth-child(1) .hover-effect
 
 ${titre annonce attendu}    Beautiful Cove
@@ -79,6 +79,7 @@ ${premiere annonce similaire}    css=#similar-listing-section a.hover-effect
 ouvrir le navigateur et accéder à l'application
     Open Browser    ${URL}    ${navigateur}
     Maximize Browser Window
+    Wait Until Page Contains Element    css=body    15s
 
 
 fermer le navigateur
@@ -90,35 +91,63 @@ fermer le navigateur
 # =========================
 
 acceder à la page de connexion
-    Wait Until Element Is Visible    ${lien se connecter}    10s
-    Click Element    ${lien se connecter}
+    Wait Until Page Contains Element
+    ...    css=a[data-target='#modal-login']
+    ...    15s
+
+    # Plusieurs liens "Se connecter" existent dans le DOM.
+    # On ouvre le modal avec celui qui est réellement visible.
+    Execute JavaScript
+    ...    const els=[...document.querySelectorAll("a[data-target='#modal-login']")]; const el=els.find(e=>e.offsetParent!==null) || els[0]; if(!el){throw new Error("Lien de connexion introuvable");} el.click();
+
+    Wait Until Element Is Visible
+    ...    ${champ nom_utilisateur}
+    ...    10s
 
 
 saisir le nom d'utilisateur
     [Arguments]    ${utilisateur}
-    Wait Until Element Is Visible    ${champ nom_utilisateur}    10s
+
+    Wait Until Element Is Visible
+    ...    ${champ nom_utilisateur}
+    ...    10s
+
     Clear Element Text    ${champ nom_utilisateur}
     Input Text    ${champ nom_utilisateur}    ${utilisateur}
 
 
 saisir le mot de passe
     [Arguments]    ${mot_de_passe}
-    Wait Until Element Is Visible    ${champ mot de passe}    10s
+
+    Wait Until Element Is Visible
+    ...    ${champ mot de passe}
+    ...    10s
+
     Clear Element Text    ${champ mot de passe}
     Input Text    ${champ mot de passe}    ${mot_de_passe}
 
 
 Soumettre le formulaire de connexion
-    Wait Until Element Is Visible    ${bouton se connecter}    10s
+    Wait Until Element Is Visible
+    ...    ${bouton se connecter}
+    ...    10s
+
     Click Element    ${bouton se connecter}
 
 
 Saisir le nom d'utilisateur et le mot de passe
     [Arguments]    ${utilisateur}    ${mot_de_passe}
-    Wait Until Element Is Visible    ${champ nom_utilisateur}    10s
+
+    Wait Until Element Is Visible
+    ...    ${champ nom_utilisateur}
+    ...    10s
 
     Clear Element Text    ${champ nom_utilisateur}
     Input Text    ${champ nom_utilisateur}    ${utilisateur}
+
+    Wait Until Element Is Visible
+    ...    ${champ mot de passe}
+    ...    10s
 
     Clear Element Text    ${champ mot de passe}
     Input Text    ${champ mot de passe}    ${mot_de_passe}
@@ -126,10 +155,16 @@ Saisir le nom d'utilisateur et le mot de passe
 
 Se connecter avec un compte valide
     acceder à la page de connexion
+
     Saisir le nom d'utilisateur et le mot de passe
     ...    ${champ utilisateur valide}
     ...    ${champ mot de passe valide}
+
     Soumettre le formulaire de connexion
+
+    Wait Until Location Contains
+    ...    /dashboard/
+    ...    15s
 
 
 # =========================
@@ -137,27 +172,43 @@ Se connecter avec un compte valide
 # =========================
 
 Accéder à l'annonce Beautiful Cove
-    Wait Until Element Is Visible    ${bouton chercher}    10s
+    Wait Until Element Is Visible
+    ...    ${bouton chercher}
+    ...    10s
+
     Click Element    ${bouton chercher}
 
     Execute JavaScript    window.scrollTo(0,0)
 
-    Wait Until Element Is Visible    ${premiere annonce}    10s
+    Wait Until Element Is Visible
+    ...    ${premiere annonce}
+    ...    10s
+
     Click Element    ${premiere annonce}
 
-    Wait Until Page Contains    Beautiful Cove    10s
+    Wait Until Page Contains
+    ...    Beautiful Cove
+    ...    10s
 
 
 Accéder à une autre annonce depuis les annonces similaires
     Accéder à l'annonce Beautiful Cove
 
-    Wait Until Element Is Visible    ${section annonces similaires}    10s
+    Wait Until Element Is Visible
+    ...    ${section annonces similaires}
+    ...    10s
+
     Scroll Element Into View    ${section annonces similaires}
 
-    Wait Until Element Is Visible    ${premiere annonce similaire}    10s
+    Wait Until Element Is Visible
+    ...    ${premiere annonce similaire}
+    ...    10s
+
     Click Element    ${premiere annonce similaire}
 
-    Wait Until Element Is Visible    ${lien contacter hote}    10s
+    Wait Until Element Is Visible
+    ...    ${lien contacter hote}
+    ...    10s
 
 
 # =========================
@@ -165,10 +216,15 @@ Accéder à une autre annonce depuis les annonces similaires
 # =========================
 
 Ouvrir le formulaire Contacter l'hôte
-    Wait Until Element Is Visible    ${lien contacter hote}    10s
+    Wait Until Element Is Visible
+    ...    ${lien contacter hote}
+    ...    10s
+
     Click Element    ${lien contacter hote}
 
-    Wait Until Element Is Visible    ${fenetre contacter hote}    10s
+    Wait Until Element Is Visible
+    ...    ${fenetre contacter hote}
+    ...    10s
 
 
 Accéder au formulaire Contacter l'hôte
@@ -179,7 +235,9 @@ Accéder au formulaire Contacter l'hôte
 Saisir les informations de contact
     [Arguments]    ${nom}    ${email}    ${telephone}    ${message}
 
-    Wait Until Element Is Visible    ${champ nom contact}    10s
+    Wait Until Element Is Visible
+    ...    ${champ nom contact}
+    ...    10s
 
     Clear Element Text    ${champ nom contact}
     Input Text    ${champ nom contact}    ${nom}
