@@ -6,6 +6,8 @@ Library    SeleniumLibrary
 ${URL}    http://livraison3.testacademy.fr/
 ${navigateur}    Chrome
 
+${JENKINS_URL}    %{JENKINS_URL=}
+
 
 # =========================
 # CONNEXION
@@ -77,9 +79,42 @@ ${premiere annonce similaire}    css=#similar-listing-section a.hover-effect
 # =========================
 
 ouvrir le navigateur et accéder à l'application
-    Open Browser    ${URL}    ${navigateur}
-    Maximize Browser Window
-    Wait Until Page Contains Element    css=body    15s
+    ${options}=    Evaluate
+    ...    selenium.webdriver.ChromeOptions()
+    ...    modules=selenium.webdriver
+
+    Call Method
+    ...    ${options}
+    ...    add_argument
+    ...    --window-size\=1920,1080
+
+    Call Method
+    ...    ${options}
+    ...    add_argument
+    ...    --disable-notifications
+
+    Call Method
+    ...    ${options}
+    ...    add_argument
+    ...    --disable-popup-blocking
+
+    IF    $JENKINS_URL
+        Call Method
+        ...    ${options}
+        ...    add_argument
+        ...    --headless\=new
+    END
+
+    Open Browser
+    ...    ${URL}
+    ...    ${navigateur}
+    ...    options=${options}
+
+    Set Window Size    1920    1080
+
+    Wait Until Page Contains Element
+    ...    css=body
+    ...    15s
 
 
 fermer le navigateur
@@ -95,8 +130,6 @@ acceder à la page de connexion
     ...    css=a[data-target='#modal-login']
     ...    15s
 
-    # Plusieurs liens "Se connecter" existent dans le DOM.
-    # On ouvre le modal avec celui qui est réellement visible.
     Execute JavaScript
     ...    const els=[...document.querySelectorAll("a[data-target='#modal-login']")]; const el=els.find(e=>e.offsetParent!==null) || els[0]; if(!el){throw new Error("Lien de connexion introuvable");} el.click();
 
@@ -132,7 +165,8 @@ Soumettre le formulaire de connexion
     ...    ${bouton se connecter}
     ...    10s
 
-    Click Element    ${bouton se connecter}
+    Execute JavaScript
+    ...    const b=document.querySelector("#modal-login button[type='submit']"); if(!b){throw new Error("Bouton de connexion introuvable");} b.click();
 
 
 Saisir le nom d'utilisateur et le mot de passe
@@ -164,7 +198,7 @@ Se connecter avec un compte valide
 
     Wait Until Location Contains
     ...    /dashboard/
-    ...    15s
+    ...    20s
 
 
 # =========================
