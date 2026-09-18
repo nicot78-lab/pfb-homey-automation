@@ -1,1 +1,17 @@
+# Résultats Robot Framework
 results/
+output.xml
+log.html
+report.html
+
+# Variables et secrets locaux
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# VS Code
+.vscode/
