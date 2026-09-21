@@ -2,7 +2,9 @@
 
 Projet d'automatisation de tests réalisé dans le cadre du Projet de Fin de Bloc B de la Test Academy.
 
-L'objectif est d'automatiser une partie des tests fonctionnels de l'application Homey / Livraison 3 avec Robot Framework et SeleniumLibrary, puis d'exécuter ces tests automatiquement dans une pipeline Jenkins.
+L'objectif est d'automatiser des tests fonctionnels de l'application Homey / Livraison 3 avec Robot Framework et SeleniumLibrary, puis d'exécuter ces tests automatiquement dans une pipeline Jenkins.
+
+---
 
 ## Application testée
 
@@ -13,6 +15,8 @@ http://livraison3.testacademy.fr/
 Dépôt GitHub :
 
 https://github.com/nicot78-lab/pfb-homey-automation
+
+---
 
 ## Technologies utilisées
 
@@ -26,7 +30,7 @@ https://github.com/nicot78-lab/pfb-homey-automation
 | Git / GitHub | Versionnement du projet |
 | Jenkins | Intégration continue |
 
-Les versions utilisées dans le projet sont définies dans `requirements.txt` :
+Versions principales définies dans `requirements.txt` :
 
 ```text
 robotframework==7.4.2
