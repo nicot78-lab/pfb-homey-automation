@@ -23,6 +23,11 @@ pipeline {
                         credentialsId: 'homey-voyageur',
                         usernameVariable: 'HOMEY_VOYAGEUR_USER',
                         passwordVariable: 'HOMEY_VOYAGEUR_PASSWORD'
+                    ),
+                    usernamePassword(
+                        credentialsId: 'homey-hote',
+                        usernameVariable: 'HOMEY_HOTE_USER',
+                        passwordVariable: 'HOMEY_HOTE_PASSWORD'
                     )
                 ]) {
                     bat 'py -m robot --skip defect --outputdir results tests'

@@ -4,3 +4,4 @@ Resource    connexion.resource
 Resource    inscription.resource
 Resource    reservation.resource
 Resource    hote.resource
+Resource    annonce.resource
