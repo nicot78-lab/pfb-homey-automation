@@ -38,8 +38,12 @@ saisir le nom d'utilisateur
     ...    ${champ nom_utilisateur}
     ...    10s
 
-    Clear Element Text    ${champ nom_utilisateur}
-    Input Text    ${champ nom_utilisateur}    ${utilisateur}
+    Clear Element Text
+    ...    ${champ nom_utilisateur}
+
+    Input Text
+    ...    ${champ nom_utilisateur}
+    ...    ${utilisateur}
 
 
 saisir le mot de passe
@@ -49,8 +53,12 @@ saisir le mot de passe
     ...    ${champ mot de passe}
     ...    10s
 
-    Clear Element Text    ${champ mot de passe}
-    Input Text    ${champ mot de passe}    ${mot_de_passe}
+    Clear Element Text
+    ...    ${champ mot de passe}
+
+    Input Text
+    ...    ${champ mot de passe}
+    ...    ${mot_de_passe}
 
 
 Soumettre le formulaire de connexion
@@ -65,19 +73,50 @@ Soumettre le formulaire de connexion
 Saisir le nom d'utilisateur et le mot de passe
     [Arguments]    ${utilisateur}    ${mot_de_passe}
 
+    Wait Until Keyword Succeeds
+    ...    3x
+    ...    500ms
+    ...    Renseigner et vérifier les identifiants de connexion
+    ...    ${utilisateur}
+    ...    ${mot_de_passe}
+
+
+Renseigner et vérifier les identifiants de connexion
+    [Arguments]    ${utilisateur}    ${mot_de_passe}
+
     Wait Until Element Is Visible
     ...    ${champ nom_utilisateur}
     ...    10s
 
-    Clear Element Text    ${champ nom_utilisateur}
-    Input Text    ${champ nom_utilisateur}    ${utilisateur}
-
-    Wait Until Element Is Visible
+    Clear Element Text
     ...    ${champ mot de passe}
-    ...    10s
 
-    Clear Element Text    ${champ mot de passe}
-    Input Text    ${champ mot de passe}    ${mot_de_passe}
+    Input Text
+    ...    ${champ mot de passe}
+    ...    ${mot_de_passe}
+
+    Clear Element Text
+    ...    ${champ nom_utilisateur}
+
+    Input Text
+    ...    ${champ nom_utilisateur}
+    ...    ${utilisateur}
+
+    Sleep    200ms
+
+    ${valeur_utilisateur}=    Get Value
+    ...    ${champ nom_utilisateur}
+
+    ${valeur_mot_de_passe}=    Get Value
+    ...    ${champ mot de passe}
+
+    Should Be Equal
+    ...    ${valeur_utilisateur}
+    ...    ${utilisateur}
+
+    Should Be Equal
+    ...    ${valeur_mot_de_passe}
+    ...    ${mot_de_passe}
 
 
 Se connecter avec un compte valide
