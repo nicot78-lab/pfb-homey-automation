@@ -49,7 +49,8 @@ Le projet couvre actuellement :
 - l'US-08 liée au suivi d'une réservation ;
 - la User Story « S'inscrire » ;
 - la User Story « Se connecter » ;
-- la User Story « Devenir Hôte ».
+- la User Story « Devenir Hôte » ;
+- l'US-06 « Créer une annonce ».
 
 ---
 
@@ -296,9 +297,94 @@ hote20260923102530
 hote20260923102530@example.com
 ```
 
-Cela permet de créer un nouveau compte à chaque exécution sans utiliser d'identifiants Hôte fixes.
+Cela permet de créer un nouveau compte à chaque exécution sans utiliser d'identifiants Hôte fixes pour la création de compte.
 
-Le mot de passe utilisé dans le scénario est une donnée de test générique et le compte créé est destiné uniquement aux tests automatisés.
+---
+
+# US-06 - Créer une annonce
+
+Cette suite automatise le parcours de création d'une annonce par un compte Hôte.
+
+Fichier :
+
+```text
+tests/us_annonce.robot
+```
+
+Ressource dédiée :
+
+```text
+resources/annonce.resource
+```
+
+Image utilisée pour le test d'upload :
+
+```text
+test_data/annonce_test.jpg
+```
+
+Les scénarios automatisés vérifient notamment :
+
+- qu'un visiteur non connecté ne voit pas la fonction « Créer annonce » ;
+- qu'un Hôte connecté peut accéder au formulaire de création ;
+- le contrôle des champs obligatoires de l'étape Information ;
+- le passage à l'étape Tarifs avec les informations requises par l'application ;
+- le caractère obligatoire du tarif par nuit ;
+- le caractère obligatoire d'au moins une image ;
+- le caractère facultatif de l'étape Caractéristiques ;
+- le passage à l'étape Règlement intérieur avec une localisation complète ;
+- le fonctionnement du bouton Retour ;
+- l'enregistrement d'une annonce comme brouillon ;
+- la soumission d'une annonce complète ;
+- la présence immédiate de l'annonce avec le statut « Publié » dans « Mes annonces ».
+
+Résultat de la suite automatisée hors défauts connus :
+
+```text
+14 tests
+12 passed
+0 failed
+2 skipped
+```
+
+Les deux scénarios ignorés portent le tag `defect` :
+
+```text
+ANN-04-US - Le titre seul devrait permettre de quitter l'étape Information selon l'US
+ANN-08-US - L'adresse seule devrait permettre de quitter l'étape Localisation selon l'US
+```
+
+## Écarts observés entre l'US et l'application
+
+### Étape Information
+
+L'US indique que seul le titre est obligatoire.
+
+Dans l'application testée, plusieurs champs supplémentaires doivent être renseignés pour pouvoir continuer, notamment le genre, le type, le nombre de chambres, de voyageurs, de lits, de salles de bain, de pièces, la superficie et l'unité.
+
+### Étape Localisation
+
+L'US indique que seule l'adresse est obligatoire.
+
+Dans l'application testée, plusieurs champs supplémentaires doivent également être renseignés pour pouvoir continuer, notamment l'appartement, la ville, le département, le code postal, la région et le pays.
+
+## Visibilité publique de l'annonce
+
+La visibilité publique d'une annonce publiée a été vérifiée manuellement.
+
+Ce contrôle n'est pas conservé dans la suite automatisée principale car la page de résultats utilise une pagination dynamique AJAX et le coût de stabilisation du scénario est disproportionné par rapport à sa valeur dans le périmètre actuel.
+
+La publication immédiate reste vérifiée automatiquement via le statut « Publié » dans « Mes annonces ».
+
+## Observation complémentaire
+
+Après soumission, l'application affiche le message :
+
+```text
+Toutes nos félicitations. Votre annonce a été soumise pour approbation.
+```
+
+Dans le même temps, l'annonce apparaît avec le statut « Publié » dans « Mes annonces ». Ce comportement est conservé comme observation fonctionnelle.
 
 ---
 
@@ -306,31 +392,36 @@ Le mot de passe utilisé dans le scénario est une donnée de test générique e
 
 ```text
 pfb-homey-automation/
-│
-├── Jenkinsfile
-├── README.md
-├── requirements.txt
-│
-├── resources/
-│   ├── commun.resource
-│   ├── navigateur.resource
-│   ├── connexion.resource
-│   ├── inscription.resource
-│   ├── reservation.resource
-│   └── hote.resource
-│
-├── tests/
-│   ├── smoke_homey.robot
-│   ├── us07_reservation.robot
-│   ├── us08_reservation.robot
-│   ├── us_connexion.robot
-│   ├── us_inscription.robot
-│   └── us_hote.robot
-│
-└── results/
-    ├── output.xml
-    ├── log.html
-    └── report.html
+|
+|-- Jenkinsfile
+|-- README.md
+|-- requirements.txt
+|
+|-- resources/
+|   |-- commun.resource
+|   |-- navigateur.resource
+|   |-- connexion.resource
+|   |-- inscription.resource
+|   |-- reservation.resource
+|   |-- hote.resource
+|   `-- annonce.resource
+|
+|-- test_data/
+|   `-- annonce_test.jpg
+|
+|-- tests/
+|   |-- smoke_homey.robot
+|   |-- us07_reservation.robot
+|   |-- us08_reservation.robot
+|   |-- us_connexion.robot
+|   |-- us_inscription.robot
+|   |-- us_hote.robot
+|   `-- us_annonce.robot
+|
+`-- results/
+    |-- output.xml
+    |-- log.html
+    `-- report.html
 ```
 
 Le dossier `results/` n'est pas versionné dans Git.
@@ -355,6 +446,7 @@ connexion.resource
 inscription.resource
 reservation.resource
 hote.resource
+annonce.resource
 ```
 
 Cette organisation permet de séparer les mots-clés par domaine fonctionnel et d'améliorer la lisibilité et la maintenance du projet.
@@ -384,22 +476,20 @@ py -m pip install -r requirements.txt
 
 ---
 
-# Identifiants de test Voyageur
+# Identifiants de test
 
-Les identifiants du compte Voyageur ne sont pas enregistrés dans le dépôt Git.
+Les identifiants des comptes Voyageur et Hôte utilisés par les tests ne sont pas enregistrés dans le dépôt Git.
 
-Ils sont fournis à Robot Framework avec des variables d'environnement :
+## Voyageur
+
+Variables d'environnement locales :
 
 ```powershell
 $env:HOMEY_VOYAGEUR_USER="nom_utilisateur"
 $env:HOMEY_VOYAGEUR_PASSWORD="mot_de_passe"
 ```
 
-Les données sensibles ne doivent jamais être inscrites directement dans les fichiers Robot Framework ou dans GitHub.
-
-Dans Jenkins, ces valeurs sont stockées dans Jenkins Credentials.
-
-Credential utilisé :
+Credential Jenkins :
 
 ```text
 homey-voyageur
@@ -411,6 +501,30 @@ Variables injectées :
 HOMEY_VOYAGEUR_USER
 HOMEY_VOYAGEUR_PASSWORD
 ```
+
+## Hôte
+
+Variables d'environnement locales :
+
+```powershell
+$env:HOMEY_HOTE_USER="nom_utilisateur"
+$env:HOMEY_HOTE_PASSWORD="mot_de_passe"
+```
+
+Credential Jenkins :
+
+```text
+homey-hote
+```
+
+Variables injectées :
+
+```text
+HOMEY_HOTE_USER
+HOMEY_HOTE_PASSWORD
+```
+
+Les données sensibles ne doivent jamais être inscrites directement dans les fichiers Robot Framework ou dans GitHub.
 
 ---
 
@@ -431,13 +545,13 @@ py -m robot --skip defect --outputdir results tests
 Résultat de référence actuel :
 
 ```text
-40 tests
-37 passed
+54 tests
+49 passed
 0 failed
-3 skipped
+5 skipped
 ```
 
-Les trois tests ignorés correspondent aux scénarios identifiés avec le tag `defect`.
+Les cinq tests ignorés correspondent aux scénarios identifiés avec le tag `defect`.
 
 ---
 
@@ -503,6 +617,18 @@ Résultat :
 11 tests, 11 passed, 0 failed
 ```
 
+## Créer une annonce
+
+```powershell
+robot --skip defect --outputdir results tests\us_annonce.robot
+```
+
+Résultat :
+
+```text
+14 tests, 12 passed, 0 failed, 2 skipped
+```
+
 ---
 
 # Rapports Robot Framework
@@ -535,7 +661,7 @@ La pipeline effectue les étapes suivantes :
 1. Récupération du projet depuis GitHub
 2. Vérification de l'environnement
 3. Installation des dépendances
-4. Injection sécurisée des identifiants Voyageur
+4. Injection sécurisée des identifiants Voyageur et Hôte
 5. Exécution des tests Robot Framework
 6. Archivage des résultats
 ```
@@ -559,18 +685,19 @@ La campagne complète a été exécutée avec succès dans Jenkins.
 Résultat :
 
 ```text
-40 tests
-37 réussis
+54 tests
+49 réussis
 0 échec
-3 ignorés
+5 ignorés
 ```
 
-La suite « Devenir Hôte » est également validée dans Jenkins :
+La suite « Créer une annonce » est également validée dans Jenkins :
 
 ```text
-11 tests
-11 réussis
+14 tests
+12 réussis
 0 échec
+2 ignorés
 ```
 
 Les rapports générés par Robot Framework sont archivés automatiquement par Jenkins.
@@ -579,7 +706,7 @@ Les rapports générés par Robot Framework sont archivés automatiquement par J
 
 # Gestion des défauts connus
 
-Les scénarios mettant en évidence une anomalie de l'application sont conservés afin d'assurer leur traçabilité.
+Les scénarios mettant en évidence une anomalie ou un écart entre l'US et l'application sont conservés afin d'assurer leur traçabilité.
 
 Ils utilisent le tag :
 
@@ -593,15 +720,17 @@ Pour exécuter la campagne de non-régression sans ces anomalies connues :
 robot --skip defect --outputdir results tests
 ```
 
-Trois scénarios sont actuellement ignorés dans la campagne Jenkins :
+Cinq scénarios sont actuellement ignorés dans la campagne Jenkins :
 
 ```text
 US07 - Le formulaire de réservation doit contenir un message obligatoire
 US08 - Une nouvelle demande doit avoir le statut NOUVEAU
 US08 - Une réservation initiale doit proposer l'action Annuler au voyageur
+ANN-04-US - Le titre seul devrait permettre de quitter l'étape Information selon l'US
+ANN-08-US - L'adresse seule devrait permettre de quitter l'étape Localisation selon l'US
 ```
 
-Ils pourront être réactivés lorsque les anomalies auront été corrigées.
+Ils pourront être réactivés lorsque les anomalies ou écarts auront été corrigés.
 
 ---
 
@@ -611,10 +740,12 @@ Les tests ont été conçus pour pouvoir être exécutés par un autre testeur o
 
 Les principes appliqués sont :
 
-- absence de mot de passe Voyageur dans le dépôt Git ;
+- absence de mots de passe Voyageur et Hôte dans le dépôt Git ;
 - utilisation de variables d'environnement ;
 - utilisation des Jenkins Credentials ;
 - génération de données uniques pour les créations de comptes ;
+- génération de titres uniques pour les annonces créées ;
+- utilisation d'une image de test versionnée dans `test_data/` ;
 - séparation des ressources par domaine fonctionnel ;
 - utilisation de sélecteurs stables lorsque cela est possible ;
 - vérification des valeurs saisies dans les formulaires dynamiques ;
@@ -636,11 +767,12 @@ US-08          : PASS hors défauts connus
 Connexion      : PASS
 Inscription    : PASS
 Devenir Hôte   : PASS
+Créer annonce  : PASS hors défauts connus
 
-Total          : 40 tests
-Réussis        : 37
+Total          : 54 tests
+Réussis        : 49
 Échecs         : 0
-Ignorés        : 3
+Ignorés        : 5
 Jenkins        : SUCCESS
 ```
 
@@ -648,12 +780,16 @@ La chaîne d'automatisation est opérationnelle :
 
 ```text
 GitHub
-   ↓
+   |
+   v
 Jenkins
-   ↓
+   |
+   v
 Robot Framework
-   ↓
+   |
+   v
 Selenium / Chrome
-   ↓
+   |
+   v
 Rapports de tests
 ```
