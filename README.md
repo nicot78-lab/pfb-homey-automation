@@ -48,7 +48,8 @@ Le projet couvre actuellement :
 - l'US-07 liée à la réservation ;
 - l'US-08 liée au suivi d'une réservation ;
 - la User Story « S'inscrire » ;
-- la User Story « Se connecter ».
+- la User Story « Se connecter » ;
+- la User Story « Devenir Hôte ».
 
 ---
 
@@ -120,8 +121,6 @@ Dans l'environnement testé :
 
 - le statut initial observé ne correspond pas au statut attendu par l'US-08 ;
 - aucune action d'annulation exploitable n'est visible dans le parcours principal testé côté Voyageur.
-
-Les transitions nécessitant un compte Hôte ne sont pas automatisées faute de compte Hôte de test valide disponible.
 
 Résultat de la suite hors défauts connus :
 
@@ -225,9 +224,81 @@ Résultat :
 0 failed
 ```
 
-Les scénarios de connexion et de tableau de bord Hôte restent identifiés dans le plan de tests mais ne sont pas automatisés à ce stade, aucun compte Hôte de test valide n'étant disponible.
+La saisie des identifiants est vérifiée avant soumission afin de stabiliser l'exécution dans Chrome et en mode headless.
 
-Aucun identifiant Hôte n'est inventé ou enregistré dans le projet.
+---
+
+# User Story - Devenir Hôte
+
+Cette suite automatise la création d'un compte Hôte depuis la page « Devenir un hôte ».
+
+Fichier :
+
+```text
+tests/us_hote.robot
+```
+
+Les scénarios automatisés vérifient :
+
+- l'accès à la page « Devenir un hôte » depuis le menu principal ;
+- l'affichage de la page dédiée ;
+- la présence des étapes expliquant comment devenir Hôte ;
+- la présence des champs obligatoires du formulaire ;
+- la création d'un compte Hôte avec des données valides ;
+- l'affichage du message de confirmation ;
+- l'ouverture automatique de la popup de connexion ;
+- la connexion avec le compte Hôte nouvellement créé ;
+- la présence des fonctions spécifiques Hôte dans le tableau de bord ;
+- le refus d'un nom d'utilisateur vide ;
+- le refus d'un email vide ;
+- le refus d'un email au format invalide ;
+- le refus d'un mot de passe vide ;
+- le refus d'une confirmation de mot de passe vide ;
+- le refus de mots de passe différents ;
+- le refus de l'inscription lorsque les termes et conditions ne sont pas acceptés.
+
+Le formulaire Hôte est distingué des autres formulaires présents dans la page grâce au champ :
+
+```text
+role = homey_host
+```
+
+Le tableau de bord du compte créé est vérifié avec les fonctions Hôte suivantes :
+
+```text
+Mes annonces
+Créer annonce
+Réservations
+Portefeuille
+Messages
+Factures
+Favoris
+```
+
+Résultat :
+
+```text
+11 tests
+11 passed
+0 failed
+```
+
+---
+
+## Reproductibilité des tests Hôte
+
+Le scénario nominal génère automatiquement un nom d'utilisateur et une adresse email uniques.
+
+Exemple :
+
+```text
+hote20260923102530
+hote20260923102530@example.com
+```
+
+Cela permet de créer un nouveau compte à chaque exécution sans utiliser d'identifiants Hôte fixes.
+
+Le mot de passe utilisé dans le scénario est une donnée de test générique et le compte créé est destiné uniquement aux tests automatisés.
 
 ---
 
@@ -241,14 +312,20 @@ pfb-homey-automation/
 ├── requirements.txt
 │
 ├── resources/
-│   └── commun.resource
+│   ├── commun.resource
+│   ├── navigateur.resource
+│   ├── connexion.resource
+│   ├── inscription.resource
+│   ├── reservation.resource
+│   └── hote.resource
 │
 ├── tests/
 │   ├── smoke_homey.robot
 │   ├── us07_reservation.robot
 │   ├── us08_reservation.robot
+│   ├── us_connexion.robot
 │   ├── us_inscription.robot
-│   └── us_connexion.robot
+│   └── us_hote.robot
 │
 └── results/
     ├── output.xml
@@ -257,6 +334,36 @@ pfb-homey-automation/
 ```
 
 Le dossier `results/` n'est pas versionné dans Git.
+
+---
+
+# Organisation des ressources
+
+Le fichier :
+
+```text
+resources/commun.resource
+```
+
+sert de point d'entrée aux fichiers de tests.
+
+Il importe les ressources spécialisées :
+
+```text
+navigateur.resource
+connexion.resource
+inscription.resource
+reservation.resource
+hote.resource
+```
+
+Cette organisation permet de séparer les mots-clés par domaine fonctionnel et d'améliorer la lisibilité et la maintenance du projet.
+
+Les fichiers de tests continuent à utiliser un seul import :
+
+```robot
+Resource    ../resources/commun.resource
+```
 
 ---
 
@@ -277,7 +384,7 @@ py -m pip install -r requirements.txt
 
 ---
 
-# Identifiants de test
+# Identifiants de test Voyageur
 
 Les identifiants du compte Voyageur ne sont pas enregistrés dans le dépôt Git.
 
@@ -324,8 +431,8 @@ py -m robot --skip defect --outputdir results tests
 Résultat de référence actuel :
 
 ```text
-29 tests
-26 passed
+40 tests
+37 passed
 0 failed
 3 skipped
 ```
@@ -360,6 +467,18 @@ Résultat :
 5 tests, 3 passed, 0 failed, 2 skipped
 ```
 
+## Connexion
+
+```powershell
+robot --outputdir results tests\us_connexion.robot
+```
+
+Résultat :
+
+```text
+10 tests, 10 passed, 0 failed
+```
+
 ## Inscription
 
 ```powershell
@@ -372,16 +491,16 @@ Résultat :
 9 tests, 9 passed, 0 failed
 ```
 
-## Connexion
+## Devenir Hôte
 
 ```powershell
-robot --outputdir results tests\us_connexion.robot
+robot --outputdir results tests\us_hote.robot
 ```
 
 Résultat :
 
 ```text
-10 tests, 10 passed, 0 failed
+11 tests, 11 passed, 0 failed
 ```
 
 ---
@@ -416,7 +535,7 @@ La pipeline effectue les étapes suivantes :
 1. Récupération du projet depuis GitHub
 2. Vérification de l'environnement
 3. Installation des dépendances
-4. Injection sécurisée des identifiants
+4. Injection sécurisée des identifiants Voyageur
 5. Exécution des tests Robot Framework
 6. Archivage des résultats
 ```
@@ -429,7 +548,7 @@ py -m robot --skip defect --outputdir results tests
 
 Le navigateur Chrome est exécuté en mode headless dans l'environnement Jenkins.
 
-Les mêmes scénarios peuvent être exécutés localement avec Chrome visible.
+Les mêmes scénarios sont exécutables localement avec Chrome visible.
 
 ---
 
@@ -440,10 +559,18 @@ La campagne complète a été exécutée avec succès dans Jenkins.
 Résultat :
 
 ```text
-29 tests
-26 réussis
+40 tests
+37 réussis
 0 échec
 3 ignorés
+```
+
+La suite « Devenir Hôte » est également validée dans Jenkins :
+
+```text
+11 tests
+11 réussis
+0 échec
 ```
 
 Les rapports générés par Robot Framework sont archivés automatiquement par Jenkins.
@@ -466,6 +593,14 @@ Pour exécuter la campagne de non-régression sans ces anomalies connues :
 robot --skip defect --outputdir results tests
 ```
 
+Trois scénarios sont actuellement ignorés dans la campagne Jenkins :
+
+```text
+US07 - Le formulaire de réservation doit contenir un message obligatoire
+US08 - Une nouvelle demande doit avoir le statut NOUVEAU
+US08 - Une réservation initiale doit proposer l'action Annuler au voyageur
+```
+
 Ils pourront être réactivés lorsque les anomalies auront été corrigées.
 
 ---
@@ -476,10 +611,13 @@ Les tests ont été conçus pour pouvoir être exécutés par un autre testeur o
 
 Les principes appliqués sont :
 
-- absence de mot de passe dans le dépôt Git ;
+- absence de mot de passe Voyageur dans le dépôt Git ;
 - utilisation de variables d'environnement ;
-- centralisation des éléments communs dans `commun.resource` ;
-- génération de données uniques lorsque nécessaire ;
+- utilisation des Jenkins Credentials ;
+- génération de données uniques pour les créations de comptes ;
+- séparation des ressources par domaine fonctionnel ;
+- utilisation de sélecteurs stables lorsque cela est possible ;
+- vérification des valeurs saisies dans les formulaires dynamiques ;
 - tests indépendants les uns des autres ;
 - absence de chemins Windows personnels dans les scénarios ;
 - dépendances documentées dans `requirements.txt` ;
@@ -495,11 +633,12 @@ Les principes appliqués sont :
 Smoke          : PASS
 US-07          : PASS hors défaut connu
 US-08          : PASS hors défauts connus
-Inscription    : PASS
 Connexion      : PASS
+Inscription    : PASS
+Devenir Hôte   : PASS
 
-Total          : 29 tests
-Réussis        : 26
+Total          : 40 tests
+Réussis        : 37
 Échecs         : 0
 Ignorés        : 3
 Jenkins        : SUCCESS
