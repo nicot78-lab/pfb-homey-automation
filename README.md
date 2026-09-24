@@ -76,28 +76,37 @@ Résultat :
 
 # US-07 - Demande de réservation
 
+Cette suite automatise le parcours de demande de réservation d'un Voyageur ainsi que les contrôles associés côté Hôte.
+
 Les scénarios automatisés vérifient notamment :
 
 - qu'un visiteur non connecté peut accéder au formulaire de réservation ;
 - qu'un visiteur non connecté ne peut pas finaliser une réservation ;
-- qu'un voyageur connecté peut envoyer une demande de réservation ;
-- la présence du champ de message obligatoire prévu dans l'US-07.
+- qu'un Voyageur connecté peut envoyer une demande de réservation ;
+- qu'une demande envoyée apparaît dans les réservations du compte Hôte ;
+- la présence du champ de message obligatoire prévu dans l'US-07 ;
+- la création attendue d'un nouveau message côté Hôte après l'envoi d'une demande.
 
-Le scénario concernant le message obligatoire est identifié comme défaut connu et porte le tag :
+Deux scénarios sont actuellement identifiés avec le tag `defect` :
 
 ```text
-defect
+US07 - Le formulaire de réservation doit contenir un message obligatoire
+US07 - Une demande de réservation doit créer un message côté hôte
 ```
 
-Dans le parcours desktop testé, le champ de message obligatoire attendu par l'US-07 n'est pas disponible.
+Dans l'environnement testé :
 
-Résultat de la suite hors défaut connu :
+- le champ de message obligatoire prévu dans l'US-07 n'est pas disponible dans le formulaire de réservation ;
+- la demande de réservation apparaît bien côté Hôte dans « Réservations » ;
+- aucun nouveau message n'est créé dans « Messages » lors de l'envoi de la demande.
+
+Résultat de la suite hors défauts connus :
 
 ```text
-4 tests
-3 passed
+6 tests
+4 passed
 0 failed
-1 skipped
+2 skipped
 ```
 
 ---
@@ -114,8 +123,8 @@ Le périmètre automatisé côté Voyageur vérifie :
 Deux scénarios sont actuellement identifiés avec le tag `defect` :
 
 ```text
-Une nouvelle demande doit avoir le statut NOUVEAU
-Une réservation initiale doit proposer l'action Annuler au voyageur
+US08 - Une nouvelle demande doit avoir le statut NOUVEAU
+US08 - Une réservation initiale doit proposer l'action Annuler au voyageur
 ```
 
 Dans l'environnement testé :
@@ -207,7 +216,6 @@ Les scénarios automatisés vérifient :
 - l'ouverture de la fenêtre de connexion ;
 - la présence des éléments du formulaire ;
 - la connexion d'un Voyageur avec des identifiants valides ;
-- l'affichage du message de succès de connexion ;
 - la redirection vers le tableau de bord Voyageur ;
 - la présence des principales rubriques du tableau de bord ;
 - le refus de coordonnées invalides ;
@@ -241,40 +249,11 @@ tests/us_hote.robot
 
 Les scénarios automatisés vérifient :
 
-- l'accès à la page « Devenir un hôte » depuis le menu principal ;
-- l'affichage de la page dédiée ;
+- l'accès à la page « Devenir un hôte » ;
 - la présence des étapes expliquant comment devenir Hôte ;
 - la présence des champs obligatoires du formulaire ;
 - la création d'un compte Hôte avec des données valides ;
-- l'affichage du message de confirmation ;
-- l'ouverture automatique de la popup de connexion ;
-- la connexion avec le compte Hôte nouvellement créé ;
-- la présence des fonctions spécifiques Hôte dans le tableau de bord ;
-- le refus d'un nom d'utilisateur vide ;
-- le refus d'un email vide ;
-- le refus d'un email au format invalide ;
-- le refus d'un mot de passe vide ;
-- le refus d'une confirmation de mot de passe vide ;
-- le refus de mots de passe différents ;
-- le refus de l'inscription lorsque les termes et conditions ne sont pas acceptés.
-
-Le formulaire Hôte est distingué des autres formulaires présents dans la page grâce au champ :
-
-```text
-role = homey_host
-```
-
-Le tableau de bord du compte créé est vérifié avec les fonctions Hôte suivantes :
-
-```text
-Mes annonces
-Créer annonce
-Réservations
-Portefeuille
-Messages
-Factures
-Favoris
-```
+- les différents contrôles de validation du formulaire.
 
 Résultat :
 
@@ -297,7 +276,7 @@ hote20260923102530
 hote20260923102530@example.com
 ```
 
-Cela permet de créer un nouveau compte à chaque exécution sans utiliser d'identifiants Hôte fixes pour la création de compte.
+Cela permet de créer un nouveau compte à chaque exécution sans utiliser d'identifiants fixes pour la création du compte.
 
 ---
 
@@ -327,18 +306,17 @@ Les scénarios automatisés vérifient notamment :
 
 - qu'un visiteur non connecté ne voit pas la fonction « Créer annonce » ;
 - qu'un Hôte connecté peut accéder au formulaire de création ;
-- le contrôle des champs obligatoires de l'étape Information ;
-- le passage à l'étape Tarifs avec les informations requises par l'application ;
-- le caractère obligatoire du tarif par nuit ;
-- le caractère obligatoire d'au moins une image ;
-- le caractère facultatif de l'étape Caractéristiques ;
-- le passage à l'étape Règlement intérieur avec une localisation complète ;
-- le fonctionnement du bouton Retour ;
-- l'enregistrement d'une annonce comme brouillon ;
+- le contrôle des champs obligatoires ;
+- le tarif par nuit ;
+- l'upload d'une image ;
+- l'étape Caractéristiques ;
+- la localisation ;
+- le bouton Retour ;
+- l'enregistrement en brouillon ;
 - la soumission d'une annonce complète ;
 - la présence immédiate de l'annonce avec le statut « Publié » dans « Mes annonces ».
 
-Résultat de la suite automatisée hors défauts connus :
+Résultat :
 
 ```text
 14 tests
@@ -360,31 +338,23 @@ ANN-08-US - L'adresse seule devrait permettre de quitter l'étape Localisation s
 
 L'US indique que seul le titre est obligatoire.
 
-Dans l'application testée, plusieurs champs supplémentaires doivent être renseignés pour pouvoir continuer, notamment le genre, le type, le nombre de chambres, de voyageurs, de lits, de salles de bain, de pièces, la superficie et l'unité.
+Dans l'application testée, plusieurs champs supplémentaires doivent être renseignés pour pouvoir continuer.
 
 ### Étape Localisation
 
 L'US indique que seule l'adresse est obligatoire.
 
-Dans l'application testée, plusieurs champs supplémentaires doivent également être renseignés pour pouvoir continuer, notamment l'appartement, la ville, le département, le code postal, la région et le pays.
-
-## Visibilité publique de l'annonce
-
-La visibilité publique d'une annonce publiée a été vérifiée manuellement.
-
-Ce contrôle n'est pas conservé dans la suite automatisée principale car la page de résultats utilise une pagination dynamique AJAX et le coût de stabilisation du scénario est disproportionné par rapport à sa valeur dans le périmètre actuel.
-
-La publication immédiate reste vérifiée automatiquement via le statut « Publié » dans « Mes annonces ».
+Dans l'application testée, plusieurs champs supplémentaires doivent également être renseignés pour continuer.
 
 ## Observation complémentaire
 
-Après soumission, l'application affiche le message :
+Après soumission, l'application affiche :
 
 ```text
 Toutes nos félicitations. Votre annonce a été soumise pour approbation.
 ```
 
-Dans le même temps, l'annonce apparaît avec le statut « Publié » dans « Mes annonces ». Ce comportement est conservé comme observation fonctionnelle.
+Dans le même temps, l'annonce apparaît avec le statut « Publié » dans « Mes annonces ».
 
 ---
 
@@ -438,7 +408,7 @@ resources/commun.resource
 
 sert de point d'entrée aux fichiers de tests.
 
-Il importe les ressources spécialisées :
+Il importe :
 
 ```text
 navigateur.resource
@@ -449,9 +419,7 @@ hote.resource
 annonce.resource
 ```
 
-Cette organisation permet de séparer les mots-clés par domaine fonctionnel et d'améliorer la lisibilité et la maintenance du projet.
-
-Les fichiers de tests continuent à utiliser un seul import :
+Les fichiers de tests utilisent l'import :
 
 ```robot
 Resource    ../resources/commun.resource
@@ -478,11 +446,9 @@ py -m pip install -r requirements.txt
 
 # Identifiants de test
 
-Les identifiants des comptes Voyageur et Hôte utilisés par les tests ne sont pas enregistrés dans le dépôt Git.
+Les identifiants des comptes Voyageur et Hôte ne sont pas enregistrés dans le dépôt Git.
 
 ## Voyageur
-
-Variables d'environnement locales :
 
 ```powershell
 $env:HOMEY_VOYAGEUR_USER="nom_utilisateur"
@@ -495,16 +461,7 @@ Credential Jenkins :
 homey-voyageur
 ```
 
-Variables injectées :
-
-```text
-HOMEY_VOYAGEUR_USER
-HOMEY_VOYAGEUR_PASSWORD
-```
-
 ## Hôte
-
-Variables d'environnement locales :
 
 ```powershell
 $env:HOMEY_HOTE_USER="nom_utilisateur"
@@ -517,13 +474,6 @@ Credential Jenkins :
 homey-hote
 ```
 
-Variables injectées :
-
-```text
-HOMEY_HOTE_USER
-HOMEY_HOTE_PASSWORD
-```
-
 Les données sensibles ne doivent jamais être inscrites directement dans les fichiers Robot Framework ou dans GitHub.
 
 ---
@@ -533,25 +483,17 @@ Les données sensibles ne doivent jamais être inscrites directement dans les fi
 Pour exécuter toute la campagne en excluant les défauts connus :
 
 ```powershell
-robot --skip defect --outputdir results tests
-```
-
-ou :
-
-```powershell
 py -m robot --skip defect --outputdir results tests
 ```
 
 Résultat de référence actuel :
 
 ```text
-54 tests
-49 passed
+56 tests
+50 passed
 0 failed
-5 skipped
+6 skipped
 ```
-
-Les cinq tests ignorés correspondent aux scénarios identifiés avec le tag `defect`.
 
 ---
 
@@ -560,19 +502,19 @@ Les cinq tests ignorés correspondent aux scénarios identifiés avec le tag `de
 ## US-07
 
 ```powershell
-robot --skip defect --outputdir results tests\us07_reservation.robot
+py -m robot --skip defect --outputdir results tests\us07_reservation.robot
 ```
 
 Résultat :
 
 ```text
-4 tests, 3 passed, 0 failed, 1 skipped
+6 tests, 4 passed, 0 failed, 2 skipped
 ```
 
 ## US-08
 
 ```powershell
-robot --skip defect --outputdir results tests\us08_reservation.robot
+py -m robot --skip defect --outputdir results tests\us08_reservation.robot
 ```
 
 Résultat :
@@ -584,7 +526,7 @@ Résultat :
 ## Connexion
 
 ```powershell
-robot --outputdir results tests\us_connexion.robot
+py -m robot --outputdir results tests\us_connexion.robot
 ```
 
 Résultat :
@@ -596,7 +538,7 @@ Résultat :
 ## Inscription
 
 ```powershell
-robot --outputdir results tests\us_inscription.robot
+py -m robot --outputdir results tests\us_inscription.robot
 ```
 
 Résultat :
@@ -608,7 +550,7 @@ Résultat :
 ## Devenir Hôte
 
 ```powershell
-robot --outputdir results tests\us_hote.robot
+py -m robot --outputdir results tests\us_hote.robot
 ```
 
 Résultat :
@@ -620,7 +562,7 @@ Résultat :
 ## Créer une annonce
 
 ```powershell
-robot --skip defect --outputdir results tests\us_annonce.robot
+py -m robot --skip defect --outputdir results tests\us_annonce.robot
 ```
 
 Résultat :
@@ -641,21 +583,21 @@ results/log.html
 results/report.html
 ```
 
-`log.html` permet de consulter le détail des mots-clés et des étapes exécutées.
+`log.html` permet de consulter le détail des étapes exécutées.
 
-`report.html` fournit une synthèse du résultat de la campagne.
+`report.html` fournit une synthèse de la campagne.
 
 ---
 
 # Intégration continue Jenkins
 
-Une pipeline Jenkins est définie dans le fichier :
+Une pipeline Jenkins est définie dans :
 
 ```text
 Jenkinsfile
 ```
 
-La pipeline effectue les étapes suivantes :
+La pipeline effectue :
 
 ```text
 1. Récupération du projet depuis GitHub
@@ -666,64 +608,50 @@ La pipeline effectue les étapes suivantes :
 6. Archivage des résultats
 ```
 
-Commande exécutée par Jenkins :
+Commande Jenkins :
 
 ```powershell
 py -m robot --skip defect --outputdir results tests
 ```
 
-Le navigateur Chrome est exécuté en mode headless dans l'environnement Jenkins.
-
-Les mêmes scénarios sont exécutables localement avec Chrome visible.
+Chrome est exécuté en mode headless dans Jenkins.
 
 ---
 
 # Résultat Jenkins
 
-La campagne complète a été exécutée avec succès dans Jenkins.
-
-Résultat :
+La pipeline Jenkins exécutée après le push du dernier code sur la branche `main` s'est terminée avec le statut :
 
 ```text
-54 tests
-49 réussis
-0 échec
-5 ignorés
+SUCCESS
 ```
 
-La suite « Créer une annonce » est également validée dans Jenkins :
+La campagne locale de référence sur ce même état du projet est :
 
 ```text
-14 tests
-12 réussis
-0 échec
-2 ignorés
+56 tests
+50 passed
+0 failed
+6 skipped
 ```
 
-Les rapports générés par Robot Framework sont archivés automatiquement par Jenkins.
+Les rapports Robot Framework sont archivés automatiquement par Jenkins.
 
 ---
 
 # Gestion des défauts connus
 
-Les scénarios mettant en évidence une anomalie ou un écart entre l'US et l'application sont conservés afin d'assurer leur traçabilité.
-
-Ils utilisent le tag :
+Les scénarios mettant en évidence un écart entre l'US et l'application sont conservés avec le tag :
 
 ```text
 defect
 ```
 
-Pour exécuter la campagne de non-régression sans ces anomalies connues :
-
-```powershell
-robot --skip defect --outputdir results tests
-```
-
-Cinq scénarios sont actuellement ignorés dans la campagne Jenkins :
+Six scénarios sont actuellement ignorés dans la campagne :
 
 ```text
 US07 - Le formulaire de réservation doit contenir un message obligatoire
+US07 - Une demande de réservation doit créer un message côté hôte
 US08 - Une nouvelle demande doit avoir le statut NOUVEAU
 US08 - Une réservation initiale doit proposer l'action Annuler au voyageur
 ANN-04-US - Le titre seul devrait permettre de quitter l'étape Information selon l'US
@@ -736,25 +664,20 @@ Ils pourront être réactivés lorsque les anomalies ou écarts auront été cor
 
 # Principes de reproductibilité
 
-Les tests ont été conçus pour pouvoir être exécutés par un autre testeur ou sur un autre poste.
-
 Les principes appliqués sont :
 
-- absence de mots de passe Voyageur et Hôte dans le dépôt Git ;
-- utilisation de variables d'environnement ;
-- utilisation des Jenkins Credentials ;
-- génération de données uniques pour les créations de comptes ;
-- génération de titres uniques pour les annonces créées ;
-- utilisation d'une image de test versionnée dans `test_data/` ;
-- séparation des ressources par domaine fonctionnel ;
-- utilisation de sélecteurs stables lorsque cela est possible ;
-- vérification des valeurs saisies dans les formulaires dynamiques ;
-- tests indépendants les uns des autres ;
+- absence de mots de passe dans Git ;
+- variables d'environnement ;
+- Jenkins Credentials ;
+- données uniques pour les créations de comptes ;
+- titres uniques pour les annonces ;
+- image de test versionnée ;
+- ressources séparées par domaine ;
+- sélecteurs stables lorsque cela est possible ;
 - absence de chemins Windows personnels dans les scénarios ;
-- dépendances documentées dans `requirements.txt` ;
+- dépendances documentées ;
 - commandes d'exécution documentées ;
-- exécution possible localement et dans Jenkins ;
-- utilisation des mêmes suites en local et en intégration continue.
+- mêmes suites en local et dans Jenkins.
 
 ---
 
@@ -762,17 +685,17 @@ Les principes appliqués sont :
 
 ```text
 Smoke          : PASS
-US-07          : PASS hors défaut connu
+US-07          : PASS hors défauts connus
 US-08          : PASS hors défauts connus
 Connexion      : PASS
 Inscription    : PASS
 Devenir Hôte   : PASS
 Créer annonce  : PASS hors défauts connus
 
-Total          : 54 tests
-Réussis        : 49
+Total          : 56 tests
+Réussis        : 50
 Échecs         : 0
-Ignorés        : 5
+Ignorés        : 6
 Jenkins        : SUCCESS
 ```
 
