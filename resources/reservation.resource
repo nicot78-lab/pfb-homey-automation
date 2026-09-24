@@ -13,6 +13,10 @@ ${premiere annonce}    css=.infobox_trigger:nth-child(1) .hover-effect
 ${titre annonce attendu}    Beautiful Cove
 ${lien annonce attendu}    http://livraison3.testacademy.fr/index.php/listing/beautiful-cove/
 
+${titre annonce hote test}    Annonce Auto 20260923181135870389
+${lien annonce hote test}    http://livraison3.testacademy.fr/index.php/listing/annonce-auto-20260923181135870389/
+${message aucun message hote}    You don't have any message at this moment.
+
 
 # =========================
 # CONTACTER L'HOTE
@@ -170,3 +174,94 @@ Vider les informations de contact
     Clear Element Text    ${champ email contact}
     Clear Element Text    ${champ telephone contact}
     Clear Element Text    ${champ message contact}
+
+
+# =========================
+# US07 - CONTROLE COTE HOTE
+# =========================
+
+Envoyer une demande sur l'annonce de l'hôte test
+    Go To    ${lien annonce hote test}
+
+    Wait Until Page Contains
+    ...    ${titre annonce hote test}
+    ...    15s
+
+    Execute JavaScript
+    ...    const e=document.querySelector("#homey_remove_on_mobile input[name='arrive']"); if(!e){throw new Error("Champ date de début introuvable");} e.click();
+
+    Wait Until Page Contains Element
+    ...    css=#homey_remove_on_mobile li.day-available.future-day
+    ...    10s
+
+    ${dates}=    Execute JavaScript
+    ...    return (()=>{const e=[...document.querySelectorAll("#homey_remove_on_mobile li.day-available.future-day")];const s=new Set(e.map(x=>x.dataset.formattedDate));for(const x of e){const d=new Date(x.dataset.formattedDate+"T12:00:00");const n1=new Date(d);n1.setDate(d.getDate()+1);const n2=new Date(d);n2.setDate(d.getDate()+2);const f1=n1.toISOString().slice(0,10);const f2=n2.toISOString().slice(0,10);if(s.has(f1)&&s.has(f2)){return [x.dataset.formattedDate,f2];}}return []})();
+
+    Length Should Be    ${dates}    2
+
+    ${date_debut}=    Set Variable    ${dates}[0]
+    ${date_fin}=    Set Variable    ${dates}[1]
+
+    Execute JavaScript
+    ...    const e=document.querySelector("#homey_remove_on_mobile li[data-formatted-date='${date_debut}']"); if(!e){throw new Error("Date de début introuvable");} e.click();
+
+    Sleep    0.5s
+
+    Execute JavaScript
+    ...    const e=document.querySelector("#homey_remove_on_mobile li[data-formatted-date='${date_fin}']"); if(!e){throw new Error("Date de fin introuvable");} e.click();
+
+    Sleep    0.5s
+
+    Execute JavaScript
+    ...    const e=document.querySelector("#homey_remove_on_mobile input[name='guests']"); if(!e){throw new Error("Champ voyageurs introuvable");} e.click();
+
+    Wait Until Page Contains Element
+    ...    css=#homey_remove_on_mobile button.adult_plus
+    ...    10s
+
+    Execute JavaScript
+    ...    const e=document.querySelector("#homey_remove_on_mobile button.adult_plus"); if(!e){throw new Error("Bouton ajout voyageur introuvable");} e.click();
+
+    Execute JavaScript
+    ...    const e=document.querySelector("#homey_remove_on_mobile button.apply_guests"); if(!e){throw new Error("Bouton appliquer introuvable");} e.click();
+
+    Sleep    0.5s
+
+    Execute JavaScript
+    ...    const e=document.querySelector("#homey_remove_on_mobile #request_for_reservation"); if(!e){throw new Error("Bouton réservation introuvable");} e.click();
+
+    Wait Until Page Contains
+    ...    Demande de réservation envoyée
+    ...    20s
+
+    RETURN    ${date_debut}    ${date_fin}
+
+
+Ouvrir les réservations de l'hôte
+    Execute JavaScript
+    ...    const els=[...document.querySelectorAll("a")]; const e=els.find(x=>x.offsetParent!==null && /réservations/i.test((x.textContent||"").trim())); if(!e){throw new Error("Lien Réservations introuvable");} e.click();
+
+    Wait Until Page Contains
+    ...    ${titre annonce hote test}
+    ...    20s
+
+
+La réservation doit être visible côté hôte
+    [Arguments]    ${date_debut}    ${date_fin}
+
+    Page Should Contain    ${titre annonce hote test}
+    Page Should Contain    NOUVEAU
+
+
+Ouvrir les messages de l'hôte
+    Execute JavaScript
+    ...    const els=[...document.querySelectorAll("a")]; const e=els.find(x=>x.offsetParent!==null && /messages/i.test((x.textContent||"").trim())); if(!e){throw new Error("Lien Messages introuvable");} e.click();
+
+    Wait Until Location Contains
+    ...    /messages/
+    ...    20s
+
+
+Un nouveau message doit être visible côté hôte
+    Page Should Not Contain
+    ...    ${message aucun message hote}

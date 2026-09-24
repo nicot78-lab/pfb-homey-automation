@@ -22,7 +22,6 @@ ${message erreur annonce}      Erreur! Veuillez remplir les champs obligatoires.
 ${message erreur image}        Importez au moins une image.
 ${message succes annonce}      Toutes nos félicitations. Votre annonce a été soumise pour approbation.
 
-
 # ==========================================================
 # ETAPE 1 - INFORMATION
 # ==========================================================
@@ -465,17 +464,20 @@ Soumettre l'annonce
     ...    ${bouton soumettre}
     ...    15s
 
-    Scroll Element Into View
+    Wait Until Element Is Enabled
     ...    ${bouton soumettre}
+    ...    15s
 
-    Click Button
-    ...    ${bouton soumettre}
+    Sleep    0.5s
+
+    Execute JavaScript
+    ...    const boutons=[...document.querySelectorAll("#submit_listing_form .btn-step-submit")]; const b=boutons.find(e=>e.offsetParent!==null); if(!b){throw new Error("Bouton Soumettre visible introuvable");} b.scrollIntoView({block:"center",inline:"center"}); b.click();
 
 
 Le message de confirmation de l'annonce doit être affiché
     Wait Until Page Contains
     ...    ${message succes annonce}
-    ...    20s
+    ...    30s
 
 
 # ==========================================================

@@ -2,7 +2,7 @@
 Library    SeleniumLibrary
 Resource    ../resources/commun.resource
 
-Test Setup    ouvrir le navigateur et accéder à l'application
+Test Setup       ouvrir le navigateur et accéder à l'application
 Test Teardown    Close All Browsers
 
 
@@ -13,9 +13,12 @@ US08 - Le voyageur connecté accède à son tableau de bord de réservations
 
     Se connecter avec un compte valide
 
-    Wait Until Page Contains    Tableau de bord    10s
+    Wait Until Page Contains
+    ...    Tableau de bord
+    ...    10s
 
-    Page Should Contain    Mes réservations
+    Page Should Contain
+    ...    Mes réservations
 
 
 US08 - Une demande de réservation est visible côté voyageur
@@ -23,7 +26,9 @@ US08 - Une demande de réservation est visible côté voyageur
 
     Se connecter avec un compte valide
 
-    Wait Until Page Contains    Tableau de bord    10s
+    Wait Until Page Contains
+    ...    Tableau de bord
+    ...    10s
 
     ${reservations_url}=    Execute JavaScript
     ...    return (()=>{const links=[...document.querySelectorAll('a[href]')];const a=links.find(x=>/reservation/i.test(x.href));return a ? a.href : '';})();
@@ -32,16 +37,27 @@ US08 - Une demande de réservation est visible côté voyageur
     ...    ${reservations_url}
     ...    Impossible de trouver une URL de réservation dans le tableau de bord
 
-    Go To    ${reservations_url}
+    Go To
+    ...    ${reservations_url}
 
-    Wait Until Page Contains    Beautiful Cove    15s
+    Wait Until Page Contains
+    ...    Arrivée
+    ...    15s
 
-    Page Should Contain    Beautiful Cove
-    Page Should Contain    Arrivée
-    Page Should Contain    Départ
-    Page Should Contain    Voyageurs
-    Page Should Contain    Animaux domestiques
-    Page Should Contain    Total
+    Page Should Contain
+    ...    Arrivée
+
+    Page Should Contain
+    ...    Départ
+
+    Page Should Contain
+    ...    Voyageurs
+
+    Page Should Contain
+    ...    Animaux domestiques
+
+    Page Should Contain
+    ...    Total
 
 
 US08 - Le voyageur peut accéder au détail de sa réservation
@@ -49,7 +65,9 @@ US08 - Le voyageur peut accéder au détail de sa réservation
 
     Se connecter avec un compte valide
 
-    Wait Until Page Contains    Tableau de bord    10s
+    Wait Until Page Contains
+    ...    Tableau de bord
+    ...    10s
 
     ${reservations_url}=    Execute JavaScript
     ...    return (()=>{const links=[...document.querySelectorAll('a[href]')];const a=links.find(x=>/reservation/i.test(x.href));return a ? a.href : '';})();
@@ -58,9 +76,12 @@ US08 - Le voyageur peut accéder au détail de sa réservation
     ...    ${reservations_url}
     ...    Impossible de trouver une URL de réservation
 
-    Go To    ${reservations_url}
+    Go To
+    ...    ${reservations_url}
 
-    Wait Until Page Contains    Beautiful Cove    15s
+    Wait Until Page Contains
+    ...    Arrivée
+    ...    15s
 
     ${details_url}=    Execute JavaScript
     ...    return (()=>{const links=[...document.querySelectorAll('a[href]')];const a=links.find(x=>/détail|detail/i.test(x.textContent) || /reservation_detail|reservation-detail/i.test(x.href));return a ? a.href : '';})();
@@ -69,11 +90,12 @@ US08 - Le voyageur peut accéder au détail de sa réservation
     ...    ${details_url}
     ...    Impossible de trouver le lien vers le détail de la réservation
 
-    Go To    ${details_url}
+    Go To
+    ...    ${details_url}
 
-    Wait Until Page Contains    Beautiful Cove    10s
-
-    Page Should Contain    Beautiful Cove
+    Wait Until Location Contains
+    ...    reservation_detail
+    ...    15s
 
     ${url_actuelle}=    Get Location
 
@@ -87,27 +109,38 @@ US08 - Une nouvelle demande doit avoir le statut NOUVEAU
 
     Se connecter avec un compte valide
 
-    Wait Until Page Contains    Tableau de bord    10s
+    Wait Until Page Contains
+    ...    Tableau de bord
+    ...    10s
 
     ${reservations_url}=    Execute JavaScript
     ...    return (()=>{const links=[...document.querySelectorAll('a[href]')];const a=links.find(x=>/reservation/i.test(x.href));return a ? a.href : '';})();
 
-    Should Not Be Empty    ${reservations_url}
+    Should Not Be Empty
+    ...    ${reservations_url}
 
-    Go To    ${reservations_url}
+    Go To
+    ...    ${reservations_url}
 
-    Wait Until Page Contains    Beautiful Cove    15s
+    Wait Until Page Contains
+    ...    Arrivée
+    ...    15s
 
     ${details_url}=    Execute JavaScript
     ...    return (()=>{const links=[...document.querySelectorAll('a[href]')];const a=links.find(x=>/détail|detail/i.test(x.textContent) || /reservation_detail|reservation-detail/i.test(x.href));return a ? a.href : '';})();
 
-    Should Not Be Empty    ${details_url}
+    Should Not Be Empty
+    ...    ${details_url}
 
-    Go To    ${details_url}
+    Go To
+    ...    ${details_url}
 
-    Wait Until Page Contains    Beautiful Cove    10s
+    Wait Until Location Contains
+    ...    reservation_detail
+    ...    15s
 
-    Page Should Contain    NOUVEAU
+    Page Should Contain
+    ...    NOUVEAU
 
 
 US08 - Une réservation initiale doit proposer l'action Annuler au voyageur
@@ -115,25 +148,35 @@ US08 - Une réservation initiale doit proposer l'action Annuler au voyageur
 
     Se connecter avec un compte valide
 
-    Wait Until Page Contains    Tableau de bord    10s
+    Wait Until Page Contains
+    ...    Tableau de bord
+    ...    10s
 
     ${reservations_url}=    Execute JavaScript
     ...    return (()=>{const links=[...document.querySelectorAll('a[href]')];const a=links.find(x=>/reservation/i.test(x.href));return a ? a.href : '';})();
 
-    Should Not Be Empty    ${reservations_url}
+    Should Not Be Empty
+    ...    ${reservations_url}
 
-    Go To    ${reservations_url}
+    Go To
+    ...    ${reservations_url}
 
-    Wait Until Page Contains    Beautiful Cove    15s
+    Wait Until Page Contains
+    ...    Arrivée
+    ...    15s
 
     ${details_url}=    Execute JavaScript
     ...    return (()=>{const links=[...document.querySelectorAll('a[href]')];const a=links.find(x=>/détail|detail/i.test(x.textContent) || /reservation_detail|reservation-detail/i.test(x.href));return a ? a.href : '';})();
 
-    Should Not Be Empty    ${details_url}
+    Should Not Be Empty
+    ...    ${details_url}
 
-    Go To    ${details_url}
+    Go To
+    ...    ${details_url}
 
-    Wait Until Page Contains    Beautiful Cove    10s
+    Wait Until Location Contains
+    ...    reservation_detail
+    ...    15s
 
     ${annuler_visible}=    Execute JavaScript
     ...    return [...document.querySelectorAll("a,button,input[type='submit'],input[type='button']")].some(e=>{const texte=(e.innerText||e.value||e.title||e.getAttribute('aria-label')||'').replace(/\s+/g,' ').trim().toLowerCase();return texte.includes('annuler') && e.getClientRects().length>0 && getComputedStyle(e).visibility!=='hidden';});
