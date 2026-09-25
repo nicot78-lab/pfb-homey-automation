@@ -1,4 +1,4 @@
-# PFB Homey Automation
+﻿# PFB Homey Automation
 
 Projet d'automatisation de tests réalisé dans le cadre du Projet de Fin de Bloc B de la Test Academy.
 
@@ -50,7 +50,8 @@ Le projet couvre actuellement :
 - la User Story « S'inscrire » ;
 - la User Story « Se connecter » ;
 - la User Story « Devenir Hôte » ;
-- l'US-06 « Créer une annonce ».
+- l'US-06 « Créer une annonce » ;
+- la User Story « Traiter une demande de réservation ».
 
 ---
 
@@ -358,6 +359,51 @@ Dans le même temps, l'annonce apparaît avec le statut « Publié » dans « Me
 
 ---
 
+# User Story - Traiter une demande de réservation
+
+Cette suite automatise les principaux traitements d'une demande de réservation côté Hôte et Voyageur.
+
+Fichier :
+
+```text
+tests/us_traiter_reservation.robot
+```
+
+Les scénarios automatisés vérifient notamment :
+
+- l'affichage d'une nouvelle demande côté Hôte ;
+- le statut `NOUVEAU` ;
+- les informations principales de la réservation ;
+- la confirmation de disponibilité par l'Hôte ;
+- le statut `DISPONIBLE` côté Voyageur ;
+- la présence de l'action « Payez maintenant » ;
+- l'accès aux frais supplémentaires et aux remises ;
+- le profil de paiement Hôte ;
+- le mode de paiement par virement bancaire ;
+- les champs IBAN, SWIFT et informations bancaires ;
+- l'accès à la page de paiement hors site.
+
+Résultat :
+
+```text
+7 tests
+5 passed
+0 failed
+2 skipped
+```
+
+Deux scénarios sont conservés avec le tag `defect` :
+
+```text
+TR-03 - Après confirmation le statut Hôte doit être ATTENTE DE PAIEMENT
+TR-04 - Le refus Hôte rend la réservation REFUSE des deux côtés
+```
+
+Pour TR-03, l'US attend `ATTENTE DE PAIEMENT` alors que l'application affiche `PAIEMENT EN ATTENTE`.
+
+TR-04 est conservé pour tracer l'écart observé lors du refus d'une réservation.
+
+---
 # Structure du projet
 
 ```text
@@ -386,7 +432,8 @@ pfb-homey-automation/
 |   |-- us_connexion.robot
 |   |-- us_inscription.robot
 |   |-- us_hote.robot
-|   `-- us_annonce.robot
+|   |-- us_annonce.robot
+|   `-- us_traiter_reservation.robot
 |
 `-- results/
     |-- output.xml
@@ -489,10 +536,10 @@ py -m robot --skip defect --outputdir results tests
 Résultat de référence actuel :
 
 ```text
-56 tests
-50 passed
+63 tests
+55 passed
 0 failed
-6 skipped
+8 skipped
 ```
 
 ---
@@ -629,10 +676,10 @@ SUCCESS
 La campagne locale de référence sur ce même état du projet est :
 
 ```text
-56 tests
-50 passed
+63 tests
+55 passed
 0 failed
-6 skipped
+8 skipped
 ```
 
 Les rapports Robot Framework sont archivés automatiquement par Jenkins.
@@ -647,7 +694,7 @@ Les scénarios mettant en évidence un écart entre l'US et l'application sont c
 defect
 ```
 
-Six scénarios sont actuellement ignorés dans la campagne :
+Huit scénarios sont actuellement ignorés dans la campagne :
 
 ```text
 US07 - Le formulaire de réservation doit contenir un message obligatoire
@@ -692,10 +739,10 @@ Inscription    : PASS
 Devenir Hôte   : PASS
 Créer annonce  : PASS hors défauts connus
 
-Total          : 56 tests
-Réussis        : 50
+Total          : 63 tests
+Réussis                       : 55
 Échecs         : 0
-Ignorés        : 6
+Ignorés                       : 8
 Jenkins        : SUCCESS
 ```
 
@@ -716,3 +763,5 @@ Selenium / Chrome
    v
 Rapports de tests
 ```
+
+
