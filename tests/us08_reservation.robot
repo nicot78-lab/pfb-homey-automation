@@ -6,10 +6,6 @@ Test Setup       ouvrir le navigateur et accéder à l'application
 Test Teardown    Close All Browsers
 
 
-*** Variables ***
-${URL_RESERVATIONS}    http://livraison3.testacademy.fr/index.php/reservations/
-
-
 *** Test Cases ***
 
 US08 - Le voyageur connecté accède à son tableau de bord de réservations
@@ -62,26 +58,3 @@ US08 - Une réservation initiale doit proposer l'action Annuler au voyageur
     Ouvrir le détail de la première réservation
 
     Page Should Contain    Annuler
-
-
-*** Keywords ***
-
-Ouvrir mes réservations
-    Go To    ${URL_RESERVATIONS}
-
-    Wait Until Page Contains
-    ...    Arrivée
-    ...    15s
-
-
-Ouvrir le détail de la première réservation
-    Wait Until Element Is Visible
-    ...    xpath=(//a[contains(@href,'reservation_detail=')])[1]
-    ...    10s
-
-    Click Element
-    ...    xpath=(//a[contains(@href,'reservation_detail=')])[1]
-
-    Wait Until Location Contains
-    ...    reservation_detail
-    ...    15s

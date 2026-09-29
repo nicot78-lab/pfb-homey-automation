@@ -1,12 +1,12 @@
 *** Settings ***
-Library    SeleniumLibrary
+Library     SeleniumLibrary
+Resource    ../resources/variables.robot
 
-*** Variables ***
-${URL}        http://livraison3.testacademy.fr/
-${BROWSER}    chrome
 
 *** Test Cases ***
+
 Vérifier que Homey est accessible
-    Open Browser    ${URL}    ${BROWSER}
+    Open Browser    ${URL}    ${navigateur}
     Location Should Contain    livraison3.testacademy.fr
+
     [Teardown]    Close All Browsers

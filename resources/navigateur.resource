@@ -1,12 +1,6 @@
 *** Settings ***
-Library    SeleniumLibrary
-
-
-*** Variables ***
-${URL}    http://livraison3.testacademy.fr/
-${navigateur}    Chrome
-
-${JENKINS_URL}    %{JENKINS_URL=}
+Library     SeleniumLibrary
+Resource    variables.robot
 
 
 *** Keywords ***

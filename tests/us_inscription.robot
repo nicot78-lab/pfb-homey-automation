@@ -7,10 +7,6 @@ Test Setup       ouvrir le navigateur et accéder à l'application
 Test Teardown    fermer le navigateur
 
 
-*** Variables ***
-${MOT_DE_PASSE_INSCRIPTION}    Test1234!
-
-
 *** Test Cases ***
 
 INS-01 - Un visiteur peut ouvrir la fenêtre d'inscription
@@ -41,8 +37,8 @@ INS-03 - Un visiteur peut créer un compte avec des données valides
     Renseigner le formulaire d'inscription
     ...    ${utilisateur}
     ...    ${email}
-    ...    ${MOT_DE_PASSE_INSCRIPTION}
-    ...    ${MOT_DE_PASSE_INSCRIPTION}
+    ...    ${MOT_DE_PASSE_TEST}
+    ...    ${MOT_DE_PASSE_TEST}
 
     Accepter les termes et conditions
 
@@ -61,8 +57,8 @@ INS-04 - L'inscription est refusée si le nom d'utilisateur est vide
     Renseigner le formulaire d'inscription
     ...    ${EMPTY}
     ...    testemail@example.com
-    ...    ${MOT_DE_PASSE_INSCRIPTION}
-    ...    ${MOT_DE_PASSE_INSCRIPTION}
+    ...    ${MOT_DE_PASSE_TEST}
+    ...    ${MOT_DE_PASSE_TEST}
 
     Accepter les termes et conditions
 
@@ -80,8 +76,8 @@ INS-09 - L'inscription est refusée si le format de l'email est invalide
     Renseigner le formulaire d'inscription
     ...    testemailinvalide
     ...    emailinvalide
-    ...    ${MOT_DE_PASSE_INSCRIPTION}
-    ...    ${MOT_DE_PASSE_INSCRIPTION}
+    ...    ${MOT_DE_PASSE_TEST}
+    ...    ${MOT_DE_PASSE_TEST}
 
     Accepter les termes et conditions
 
@@ -118,8 +114,8 @@ INS-14 - L'inscription est refusée si les conditions ne sont pas acceptées
     Renseigner le formulaire d'inscription
     ...    testconditions
     ...    testconditions@example.com
-    ...    ${MOT_DE_PASSE_INSCRIPTION}
-    ...    ${MOT_DE_PASSE_INSCRIPTION}
+    ...    ${MOT_DE_PASSE_TEST}
+    ...    ${MOT_DE_PASSE_TEST}
 
     Valider l'inscription
 
