@@ -2,7 +2,7 @@
 
 Projet d'automatisation de tests réalisé dans le cadre du Projet de Fin de Bloc B de la Test Academy.
 
-L'objectif est d'automatiser des tests fonctionnels de l'application Homey / Livraison 3 avec Robot Framework et SeleniumLibrary, puis d'exécuter ces tests automatiquement dans une pipeline Jenkins.
+L'objectif est d'automatiser les principaux parcours fonctionnels de l'application Homey / Livraison 3 avec Robot Framework et SeleniumLibrary, puis d'exécuter automatiquement cette campagne avec Jenkins.
 
 ---
 
@@ -12,7 +12,7 @@ Application :
 
 http://livraison3.testacademy.fr/
 
-Dépôt GitHub :
+Dépôt GitHub public :
 
 https://github.com/nicot78-lab/pfb-homey-automation
 
@@ -20,17 +20,17 @@ https://github.com/nicot78-lab/pfb-homey-automation
 
 ## Technologies utilisées
 
-| Outil | Utilisation |
+| Outil | Version / utilisation |
 |---|---|
-| Python | Exécution de Robot Framework |
-| Robot Framework | Framework d'automatisation |
-| SeleniumLibrary | Automatisation du navigateur |
-| Selenium | Pilotage de Chrome |
+| Python | 3.13.15 |
+| Robot Framework | 7.4.2 |
+| SeleniumLibrary | 6.9.0 |
+| Selenium | 4.48.0 |
 | Google Chrome | Navigateur utilisé pour les tests |
 | Git / GitHub | Versionnement du projet |
 | Jenkins | Intégration continue |
 
-Versions principales définies dans `requirements.txt` :
+Les dépendances Python sont définies dans `requirements.txt` :
 
 ```text
 robotframework==7.4.2
@@ -42,444 +42,80 @@ selenium==4.48.0
 
 # Périmètre automatisé
 
-Le projet couvre actuellement :
+Le projet couvre :
 
-- un test Smoke ;
-- l'US-07 liée à la demande de réservation ;
-- l'US-08 liée au suivi d'une réservation ;
-- la User Story « S'inscrire » ;
-- la User Story « Se connecter » ;
-- la User Story « Devenir Hôte » ;
-- l'US-06 « Créer une annonce » ;
-- la User Story « Traiter une demande de réservation » ;
-- la User Story « Régénérer son mot de passe ».
+- un Smoke Test ;
+- US-07 - Demande de réservation ;
+- US-08 - Suivi d'une réservation ;
+- S'inscrire ;
+- Se connecter ;
+- Devenir Hôte ;
+- US-06 - Créer une annonce ;
+- Traiter une demande de réservation ;
+- Régénérer son mot de passe.
 
----
-
-# Smoke Test
-
-Le test Smoke vérifie que l'application Homey est accessible avant l'exécution des scénarios fonctionnels.
-
-Fichier :
+La campagne complète contient :
 
 ```text
-tests/smoke_homey.robot
-```
-
-Résultat :
-
-```text
-1 test
-1 passed
+66 tests
+57 passed
 0 failed
+9 skipped
 ```
+
+Les neuf tests ignorés correspondent à des écarts connus entre les User Stories et l'application testée. Ils portent le tag `defect`.
 
 ---
 
-# US-07 - Demande de réservation
+# Architecture POM
 
-Les scénarios automatisés vérifient notamment :
+Le projet utilise une organisation inspirée du Page Object Model.
 
-- qu'un visiteur non connecté peut accéder au formulaire de réservation ;
-- qu'un visiteur non connecté ne peut pas finaliser une réservation ;
-- qu'un voyageur connecté peut envoyer une demande de réservation ;
-- qu'une demande envoyée apparaît dans les réservations de l'Hôte ;
-- la présence du champ de message obligatoire prévu dans l'US ;
-- la création d'un message côté Hôte après une demande de réservation.
-
-Deux scénarios sont identifiés avec le tag `defect` :
+Les fichiers de tests sont placés dans :
 
 ```text
-US07 - Le formulaire de réservation doit contenir un message obligatoire
-US07 - Une demande de réservation doit créer un message côté hôte
+tests/
 ```
 
-Dans l'application testée :
-
-- le champ de message obligatoire attendu par l'US n'est pas disponible ;
-- la demande de réservation ne génère pas le message attendu côté Hôte.
-
-Résultat :
+Les actions techniques, sélecteurs et mots-clés réutilisables sont placés dans :
 
 ```text
-6 tests
-4 passed
-0 failed
-2 skipped
+resources/pages/
 ```
 
----
-
-# US-08 - Suivi d'une réservation
-
-Le périmètre automatisé côté Voyageur vérifie :
-
-- l'accès au tableau de bord des réservations ;
-- la présence d'une demande de réservation ;
-- l'affichage des informations de réservation ;
-- l'accès au détail d'une réservation ;
-- le statut attendu d'une nouvelle réservation ;
-- la possibilité d'annuler une réservation initiale.
-
-Deux scénarios sont identifiés avec le tag `defect` :
+Les variables communes sont centralisées dans :
 
 ```text
-US08 - Une nouvelle demande doit avoir le statut NOUVEAU
-US08 - Une réservation initiale doit proposer l'action Annuler au voyageur
+resources/variables.robot
 ```
 
-Dans l'environnement testé :
-
-- le statut initial observé ne correspond pas au statut `NOUVEAU` attendu par l'US ;
-- l'action d'annulation attendue n'est pas disponible dans l'état initial testé.
-
-Résultat :
+Le fichier :
 
 ```text
-5 tests
-3 passed
-0 failed
-2 skipped
+resources/commun.resource
 ```
 
----
+sert de point d'entrée commun aux ressources utilisées par les scénarios.
 
-# User Story - S'inscrire
-
-Cette suite automatise la création d'un compte Voyageur et plusieurs règles de validation du formulaire d'inscription.
-
-Fichier :
+Cette organisation permet de séparer :
 
 ```text
-tests/us_inscription.robot
+Scénarios fonctionnels
+        |
+        v
+tests/
+        |
+        v
+resources/commun.resource
+        |
+        v
+resources/pages/
+        |
+        v
+SeleniumLibrary / navigateur
 ```
 
-Les scénarios automatisés vérifient :
-
-- l'ouverture de la fenêtre d'inscription ;
-- la présence des champs obligatoires ;
-- la création d'un compte avec des données valides ;
-- le refus de l'inscription si le nom d'utilisateur est vide ;
-- le refus d'un email au format invalide ;
-- le refus si les deux mots de passe sont différents ;
-- le refus si les termes et conditions ne sont pas acceptés ;
-- l'accès à la page des termes et conditions ;
-- l'accès à l'inscription depuis la fenêtre de connexion.
-
-Résultat :
-
-```text
-9 tests
-9 passed
-0 failed
-```
-
----
-
-## Reproductibilité des tests d'inscription
-
-Le nom d'utilisateur et l'adresse email doivent être uniques.
-
-Robot Framework génère automatiquement un identifiant unique à chaque exécution.
-
-Exemple :
-
-```text
-voyageur20260921150342
-voyageur20260921150342@example.com
-```
-
-Cela permet :
-
-- de rejouer les tests sans modifier les fichiers ;
-- d'éviter les conflits avec des comptes déjà existants ;
-- d'exécuter les tests sur un autre poste ;
-- d'exécuter les mêmes tests dans Jenkins.
-
----
-
-# User Story - Se connecter
-
-Cette suite automatise les principaux scénarios de connexion d'un compte Voyageur.
-
-Fichier :
-
-```text
-tests/us_connexion.robot
-```
-
-Les scénarios automatisés vérifient :
-
-- l'ouverture de la fenêtre de connexion ;
-- la présence des éléments du formulaire ;
-- la connexion avec des identifiants valides ;
-- l'affichage du message de succès ;
-- la redirection vers le tableau de bord Voyageur ;
-- la présence des principales rubriques ;
-- le refus de coordonnées invalides ;
-- le refus d'un nom d'utilisateur ou email vide ;
-- le refus d'un mot de passe vide ;
-- le fonctionnement de la case « Se souvenir de moi » ;
-- l'accès au parcours « Mot de passe oublié » ;
-- l'accès à la recherche sans connexion.
-
-Résultat :
-
-```text
-10 tests
-10 passed
-0 failed
-```
-
----
-
-# User Story - Devenir Hôte
-
-Cette suite automatise la création d'un compte Hôte depuis la page « Devenir un hôte ».
-
-Fichier :
-
-```text
-tests/us_hote.robot
-```
-
-Les scénarios automatisés vérifient :
-
-- l'accès à la page « Devenir un hôte » ;
-- l'affichage de la page dédiée ;
-- la présence des étapes expliquant comment devenir Hôte ;
-- la présence des champs obligatoires ;
-- la création d'un compte avec des données valides ;
-- l'affichage du message de confirmation ;
-- l'ouverture de la popup de connexion ;
-- la connexion avec le compte nouvellement créé ;
-- la présence des fonctions spécifiques Hôte ;
-- les principales règles de validation du formulaire.
-
-Le formulaire Hôte est identifié grâce au champ :
-
-```text
-role = homey_host
-```
-
-Le tableau de bord Hôte est vérifié avec notamment :
-
-```text
-Mes annonces
-Créer annonce
-Réservations
-Portefeuille
-Messages
-Factures
-Favoris
-```
-
-Résultat :
-
-```text
-11 tests
-11 passed
-0 failed
-```
-
----
-
-## Reproductibilité des tests Hôte
-
-Un nom d'utilisateur et une adresse email uniques sont générés lors de chaque création.
-
-Exemple :
-
-```text
-hote20260923102530
-hote20260923102530@example.com
-```
-
----
-
-# US-06 - Créer une annonce
-
-Cette suite automatise le parcours de création d'une annonce par un compte Hôte.
-
-Fichier :
-
-```text
-tests/us_annonce.robot
-```
-
-Ressource dédiée :
-
-```text
-resources/annonce.resource
-```
-
-Image utilisée pour le test d'upload :
-
-```text
-test_data/annonce_test.jpg
-```
-
-Les scénarios automatisés vérifient notamment :
-
-- qu'un visiteur non connecté ne voit pas la fonction « Créer annonce » ;
-- qu'un Hôte connecté peut accéder au formulaire ;
-- les champs obligatoires de l'étape Information ;
-- le passage à l'étape Tarifs ;
-- le caractère obligatoire du tarif par nuit ;
-- le caractère obligatoire d'une image ;
-- le caractère facultatif de l'étape Caractéristiques ;
-- le passage à l'étape Règlement intérieur ;
-- le fonctionnement du bouton Retour ;
-- l'enregistrement comme brouillon ;
-- la soumission d'une annonce complète ;
-- la présence de l'annonce avec le statut « Publié ».
-
-Résultat :
-
-```text
-14 tests
-12 passed
-0 failed
-2 skipped
-```
-
-Deux scénarios portent le tag `defect` :
-
-```text
-ANN-04-US - Le titre seul devrait permettre de quitter l'étape Information selon l'US
-ANN-08-US - L'adresse seule devrait permettre de quitter l'étape Localisation selon l'US
-```
-
-## Écarts observés
-
-### Étape Information
-
-L'US indique que seul le titre est obligatoire.
-
-Dans l'application testée, plusieurs informations supplémentaires doivent être renseignées pour continuer.
-
-### Étape Localisation
-
-L'US indique que seule l'adresse est obligatoire.
-
-Dans l'application, plusieurs informations supplémentaires sont également nécessaires.
-
-### Observation complémentaire
-
-Après soumission, l'application affiche :
-
-```text
-Toutes nos félicitations. Votre annonce a été soumise pour approbation.
-```
-
-Dans le même temps, l'annonce apparaît avec le statut « Publié » dans « Mes annonces ».
-
----
-
-# User Story - Traiter une demande de réservation
-
-Cette suite automatise les principaux traitements d'une demande de réservation côté Hôte et Voyageur.
-
-Fichier :
-
-```text
-tests/us_traiter_reservation.robot
-```
-
-Les scénarios automatisés vérifient notamment :
-
-- l'affichage d'une nouvelle demande côté Hôte ;
-- le statut `NOUVEAU` ;
-- les informations principales de la réservation ;
-- la confirmation de disponibilité par l'Hôte ;
-- le statut `DISPONIBLE` côté Voyageur ;
-- la présence de l'action « Payez maintenant » ;
-- l'accès aux frais supplémentaires et aux remises ;
-- le profil de paiement Hôte ;
-- le mode de paiement par virement bancaire ;
-- les champs IBAN, SWIFT et informations bancaires ;
-- l'accès à la page de paiement hors site.
-
-Résultat :
-
-```text
-7 tests
-5 passed
-0 failed
-2 skipped
-```
-
-Deux scénarios portent le tag `defect` :
-
-```text
-TR-03 - Après confirmation le statut Hôte doit être ATTENTE DE PAIEMENT
-TR-04 - Le refus Hôte rend la réservation REFUSE des deux côtés
-```
-
-Pour `TR-03`, l'US attend :
-
-```text
-ATTENTE DE PAIEMENT
-```
-
-alors que l'application affiche :
-
-```text
-PAIEMENT EN ATTENTE
-```
-
-`TR-04` est conservé pour tracer l'écart observé lors du refus d'une réservation.
-
----
-
-# User Story - Régénérer son mot de passe
-
-Cette suite automatise le parcours « Mot de passe oublié ».
-
-Fichier :
-
-```text
-tests/us_mot_de_passe_oublie.robot
-```
-
-Les scénarios automatisés vérifient :
-
-- la présence du lien « Mot de passe oublié » ;
-- l'ouverture de la popup ;
-- la présence du champ permettant de saisir l'adresse email ;
-- la présence du bouton de soumission ;
-- le traitement d'une adresse correspondant à un compte inconnu ;
-- le traitement d'une adresse correspondant à un compte connu.
-
-Résultat :
-
-```text
-3 tests
-2 passed
-0 failed
-1 skipped
-```
-
-Pour un compte inconnu, l'application affiche correctement :
-
-```text
-There is no user registered with that email address.
-```
-
-Le scénario suivant est identifié avec le tag `defect` :
-
-```text
-MDP-03 - L'email de réinitialisation ne peut pas être envoyé pour un compte connu
-```
-
-Pour un compte connu, l'application reconnaît le compte mais affiche :
-
-```text
-The email could not be sent.
-Possible reason: your host may have disabled the mail() function.
-```
-
-Le critère d'acceptation concernant l'envoi de l'email et du lien de réinitialisation n'est donc pas satisfait dans l'environnement testé.
+Les fichiers présents dans `tests/` ne contiennent plus de section locale `*** Keywords ***` ou `*** Variables ***`.
 
 ---
 
@@ -488,6 +124,7 @@ Le critère d'acceptation concernant l'envoi de l'email et du lien de réinitial
 ```text
 pfb-homey-automation/
 |
+|-- .gitignore
 |-- Jenkinsfile
 |-- README.md
 |-- requirements.txt
@@ -495,11 +132,18 @@ pfb-homey-automation/
 |-- resources/
 |   |-- commun.resource
 |   |-- navigateur.resource
-|   |-- connexion.resource
-|   |-- inscription.resource
-|   |-- reservation.resource
-|   |-- hote.resource
-|   `-- annonce.resource
+|   |-- variables.robot
+|   |
+|   `-- pages/
+|       |-- page_annonce.resource
+|       |-- page_annonce_parcours.resource
+|       |-- page_connexion.resource
+|       |-- page_hote.resource
+|       |-- page_inscription.resource
+|       |-- page_mot_de_passe_oublie.resource
+|       |-- page_reservation.resource
+|       |-- page_reservation_parcours.resource
+|       `-- page_reservations_voyageur.resource
 |
 |-- test_data/
 |   `-- annonce_test.jpg
@@ -521,38 +165,7 @@ pfb-homey-automation/
     `-- report.html
 ```
 
-Le dossier `results/` n'est pas versionné dans Git.
-
----
-
-# Organisation des ressources
-
-Le fichier :
-
-```text
-resources/commun.resource
-```
-
-sert de point d'entrée aux fichiers de tests.
-
-Il importe les ressources spécialisées :
-
-```text
-navigateur.resource
-connexion.resource
-inscription.resource
-reservation.resource
-hote.resource
-annonce.resource
-```
-
-Cette organisation permet de séparer les mots-clés par domaine fonctionnel.
-
-Les fichiers de tests utilisent un import commun :
-
-```robot
-Resource    ../resources/commun.resource
-```
+Le dossier `results/` est généré lors de l'exécution mais n'est pas versionné dans Git grâce au fichier `.gitignore`.
 
 ---
 
@@ -575,18 +188,20 @@ py -m pip install -r requirements.txt
 
 # Identifiants de test
 
-Les identifiants utilisés par les tests ne sont pas enregistrés directement dans le dépôt Git.
+Les identifiants utilisés par les tests ne sont pas enregistrés dans le dépôt GitHub.
+
+Ils sont fournis par des variables d'environnement.
 
 ## Voyageur
 
-Variables d'environnement locales :
+En local :
 
 ```powershell
 $env:HOMEY_VOYAGEUR_USER="nom_utilisateur"
 $env:HOMEY_VOYAGEUR_PASSWORD="mot_de_passe"
 ```
 
-Credential Jenkins :
+Dans Jenkins, le credential utilisé est :
 
 ```text
 homey-voyageur
@@ -601,14 +216,14 @@ HOMEY_VOYAGEUR_PASSWORD
 
 ## Hôte
 
-Variables d'environnement locales :
+En local :
 
 ```powershell
 $env:HOMEY_HOTE_USER="nom_utilisateur"
 $env:HOMEY_HOTE_PASSWORD="mot_de_passe"
 ```
 
-Credential Jenkins :
+Dans Jenkins, le credential utilisé est :
 
 ```text
 homey-hote
@@ -621,7 +236,7 @@ HOMEY_HOTE_USER
 HOMEY_HOTE_PASSWORD
 ```
 
-Les données sensibles ne doivent jamais être enregistrées dans GitHub.
+Aucun mot de passe n'est enregistré dans le dépôt Git.
 
 ---
 
@@ -642,125 +257,393 @@ Résultat de référence :
 9 skipped
 ```
 
-Les neuf tests ignorés correspondent aux scénarios portant le tag `defect`.
+---
+
+# Smoke Test
+
+Fichier :
+
+```text
+tests/smoke_homey.robot
+```
+
+Le Smoke Test vérifie que l'application Homey est accessible avant l'exécution des scénarios fonctionnels.
+
+Résultat :
+
+```text
+1 test
+1 passed
+0 failed
+```
 
 ---
 
-# Exécution des suites séparément
+# US-07 - Demande de réservation
 
-## Smoke
+Fichier :
 
-```powershell
-py -m robot --outputdir results tests\smoke_homey.robot
+```text
+tests/us07_reservation.robot
 ```
+
+Les scénarios vérifient notamment :
+
+- l'accès au formulaire de réservation ;
+- le comportement d'un visiteur non connecté ;
+- l'envoi d'une demande par un Voyageur connecté ;
+- la présence de la réservation côté Hôte ;
+- le champ de message prévu par l'US ;
+- la création d'un message côté Hôte.
 
 Résultat :
 
 ```text
-1 test, 1 passed, 0 failed
+6 tests
+4 passed
+0 failed
+2 skipped
 ```
 
-## US-07
+Défauts connus :
 
-```powershell
-py -m robot --skip defect --outputdir results tests\us07_reservation.robot
+```text
+US07 - Le formulaire de réservation doit contenir un message obligatoire
+US07 - Une demande de réservation doit créer un message côté hôte
 ```
+
+Dans l'application testée :
+
+- le champ de message obligatoire prévu par l'US n'est pas disponible ;
+- la demande de réservation ne génère pas le message attendu côté Hôte.
+
+---
+
+# US-08 - Suivi d'une réservation
+
+Fichier :
+
+```text
+tests/us08_reservation.robot
+```
+
+Les scénarios vérifient :
+
+- l'accès au tableau de bord ;
+- la présence des réservations ;
+- les informations affichées ;
+- l'accès au détail ;
+- le statut initial ;
+- l'action d'annulation.
 
 Résultat :
 
 ```text
-6 tests, 4 passed, 0 failed, 2 skipped
+5 tests
+3 passed
+0 failed
+2 skipped
 ```
 
-## US-08
+Défauts connus :
 
-```powershell
-py -m robot --skip defect --outputdir results tests\us08_reservation.robot
+```text
+US08 - Une nouvelle demande doit avoir le statut NOUVEAU
+US08 - Une réservation initiale doit proposer l'action Annuler au voyageur
 ```
+
+---
+
+# User Story - S'inscrire
+
+Fichier :
+
+```text
+tests/us_inscription.robot
+```
+
+Les scénarios vérifient :
+
+- l'ouverture de la fenêtre d'inscription ;
+- les champs obligatoires ;
+- la création d'un compte valide ;
+- les contrôles sur le nom d'utilisateur ;
+- le format de l'adresse email ;
+- la confirmation du mot de passe ;
+- l'acceptation des conditions ;
+- le lien vers les termes et conditions ;
+- l'accès à l'inscription depuis la connexion.
 
 Résultat :
 
 ```text
-5 tests, 3 passed, 0 failed, 2 skipped
+9 tests
+9 passed
+0 failed
 ```
 
-## Créer une annonce
+Les comptes de test sont générés avec des données uniques afin de permettre plusieurs exécutions de la campagne.
 
-```powershell
-py -m robot --skip defect --outputdir results tests\us_annonce.robot
+---
+
+# User Story - Se connecter
+
+Fichier :
+
+```text
+tests/us_connexion.robot
 ```
+
+Les scénarios vérifient notamment :
+
+- l'ouverture de la fenêtre de connexion ;
+- les champs du formulaire ;
+- une connexion valide ;
+- le tableau de bord Voyageur ;
+- les identifiants invalides ;
+- les champs obligatoires ;
+- la case « Se souvenir de moi » ;
+- le parcours « Mot de passe oublié » ;
+- l'accès à la recherche sans connexion.
 
 Résultat :
 
 ```text
-14 tests, 12 passed, 0 failed, 2 skipped
+10 tests
+10 passed
+0 failed
 ```
 
-## Connexion
+---
 
-```powershell
-py -m robot --outputdir results tests\us_connexion.robot
+# User Story - Devenir Hôte
+
+Fichier :
+
+```text
+tests/us_hote.robot
 ```
+
+Les scénarios vérifient notamment :
+
+- l'accès à la page « Devenir un hôte » ;
+- les informations affichées ;
+- les champs obligatoires ;
+- la création d'un compte Hôte ;
+- les principales validations du formulaire.
 
 Résultat :
 
 ```text
-10 tests, 10 passed, 0 failed
+11 tests
+11 passed
+0 failed
 ```
 
-## Devenir Hôte
+Les données Hôte créées pendant les tests sont générées de manière unique.
 
-```powershell
-py -m robot --outputdir results tests\us_hote.robot
+---
+
+# US-06 - Créer une annonce
+
+Fichier :
+
+```text
+tests/us_annonce.robot
 ```
+
+Ressources principales :
+
+```text
+resources/pages/page_annonce.resource
+resources/pages/page_annonce_parcours.resource
+```
+
+Image de test :
+
+```text
+test_data/annonce_test.jpg
+```
+
+Les scénarios vérifient notamment :
+
+- l'accès à la création d'annonce ;
+- l'étape Information ;
+- l'étape Tarifs ;
+- l'étape Médias ;
+- le chargement d'une image ;
+- l'étape Caractéristiques ;
+- la Localisation ;
+- le Règlement intérieur ;
+- le retour à l'étape précédente ;
+- l'enregistrement en brouillon ;
+- la soumission ;
+- la publication de l'annonce.
 
 Résultat :
 
 ```text
-11 tests, 11 passed, 0 failed
+14 tests
+12 passed
+0 failed
+2 skipped
 ```
 
-## Inscription
+Défauts connus :
 
-```powershell
-py -m robot --outputdir results tests\us_inscription.robot
+```text
+ANN-04-US - Le titre seul devrait permettre de quitter l'étape Information selon l'US
+ANN-08-US - L'adresse seule devrait permettre de quitter l'étape Localisation selon l'US
 ```
+
+L'application demande davantage d'informations obligatoires que celles prévues dans l'US pour les étapes Information et Localisation.
+
+---
+
+# User Story - Traiter une demande de réservation
+
+Fichier :
+
+```text
+tests/us_traiter_reservation.robot
+```
+
+Ressources principales :
+
+```text
+resources/pages/page_reservation.resource
+resources/pages/page_reservation_parcours.resource
+resources/pages/page_reservations_voyageur.resource
+```
+
+Les scénarios vérifient notamment :
+
+- une nouvelle demande côté Hôte ;
+- les informations de réservation ;
+- la confirmation de disponibilité ;
+- le statut `DISPONIBLE` côté Voyageur ;
+- l'action « Payez maintenant » ;
+- les frais supplémentaires ;
+- les remises ;
+- le profil de paiement Hôte ;
+- le virement bancaire ;
+- les champs IBAN et SWIFT ;
+- le paiement hors site.
 
 Résultat :
 
 ```text
-9 tests, 9 passed, 0 failed
+7 tests
+5 passed
+0 failed
+2 skipped
 ```
 
-## Régénérer son mot de passe
+Défauts connus :
 
-```powershell
-py -m robot --skip defect --outputdir results tests\us_mot_de_passe_oublie.robot
+```text
+TR-03 - Après confirmation le statut Hôte doit être ATTENTE DE PAIEMENT
+TR-04 - Le refus Hôte rend la réservation REFUSE des deux côtés
 ```
+
+Pour TR-03, l'US attend :
+
+```text
+ATTENTE DE PAIEMENT
+```
+
+alors que l'application affiche :
+
+```text
+PAIEMENT EN ATTENTE
+```
+
+TR-04 est conservé afin de tracer l'écart observé sur le traitement d'un refus.
+
+---
+
+# User Story - Régénérer son mot de passe
+
+Fichier :
+
+```text
+tests/us_mot_de_passe_oublie.robot
+```
+
+Ressource dédiée :
+
+```text
+resources/pages/page_mot_de_passe_oublie.resource
+```
+
+Les scénarios vérifient :
+
+- l'ouverture du parcours ;
+- la présence du formulaire ;
+- un compte inconnu ;
+- un compte connu.
 
 Résultat :
 
 ```text
-3 tests, 2 passed, 0 failed, 1 skipped
+3 tests
+2 passed
+0 failed
+1 skipped
 ```
 
-## Traiter une réservation
-
-```powershell
-py -m robot --skip defect --outputdir results tests\us_traiter_reservation.robot
-```
-
-Résultat :
+Défaut connu :
 
 ```text
-7 tests, 5 passed, 0 failed, 2 skipped
+MDP-03 - Un compte connu doit recevoir un email de réinitialisation
 ```
+
+Pour un compte connu, l'application reconnaît le compte mais affiche :
+
+```text
+The email could not be sent.
+Possible reason: your host may have disabled the mail() function.
+```
+
+L'envoi réel du lien de réinitialisation ne peut donc pas être validé dans l'environnement testé.
+
+---
+
+# Gestion des défauts connus
+
+Les scénarios présentant un écart connu portent le tag :
+
+```text
+defect
+```
+
+Pour exécuter la campagne sans ces défauts :
+
+```powershell
+py -m robot --skip defect --outputdir results tests
+```
+
+Les neuf scénarios concernés sont :
+
+```text
+US07 - Le formulaire de réservation doit contenir un message obligatoire
+US07 - Une demande de réservation doit créer un message côté hôte
+US08 - Une nouvelle demande doit avoir le statut NOUVEAU
+US08 - Une réservation initiale doit proposer l'action Annuler au voyageur
+ANN-04-US - Le titre seul devrait permettre de quitter l'étape Information selon l'US
+ANN-08-US - L'adresse seule devrait permettre de quitter l'étape Localisation selon l'US
+TR-03 - Après confirmation le statut Hôte doit être ATTENTE DE PAIEMENT
+TR-04 - Le refus Hôte rend la réservation REFUSE des deux côtés
+MDP-03 - Un compte connu doit recevoir un email de réinitialisation
+```
+
+Ils peuvent être réactivés lorsque les anomalies correspondantes sont corrigées.
 
 ---
 
 # Rapports Robot Framework
 
-Après l'exécution, Robot Framework génère :
+Après exécution, Robot Framework génère :
 
 ```text
 results/output.xml
@@ -768,27 +651,29 @@ results/log.html
 results/report.html
 ```
 
-`log.html` permet de consulter le détail des mots-clés exécutés.
+`log.html` contient le détail des mots-clés exécutés.
 
-`report.html` fournit une synthèse de la campagne.
+`report.html` fournit la synthèse de la campagne.
+
+Le dossier `results/` n'est pas enregistré dans GitHub.
 
 ---
 
 # Intégration continue Jenkins
 
-La pipeline Jenkins est définie dans :
+Le pipeline est défini dans :
 
 ```text
 Jenkinsfile
 ```
 
-La pipeline effectue :
+Il réalise automatiquement :
 
 ```text
-1. Récupération du projet depuis GitHub
+1. Récupération du code depuis GitHub
 2. Vérification de l'environnement
 3. Installation des dépendances
-4. Injection sécurisée des identifiants Voyageur et Hôte
+4. Injection sécurisée des identifiants
 5. Exécution des tests Robot Framework
 6. Archivage des résultats
 ```
@@ -801,82 +686,72 @@ py -m robot --skip defect --outputdir results tests
 
 Chrome est exécuté en mode headless dans Jenkins.
 
-Les mêmes suites sont exécutables localement.
+Les rapports contenus dans `results/` sont archivés comme artefacts Jenkins.
 
 ---
 
-# Résultat Jenkins
+# Résultat de référence
 
-La campagne complète a été exécutée avec succès dans Jenkins.
-
-Résultat :
+Dernière campagne complète :
 
 ```text
 66 tests
-57 réussis
-0 échec
-9 ignorés
+57 passed
+0 failed
+9 skipped
 ```
 
-Statut Jenkins :
+Statut du pipeline Jenkins :
 
 ```text
 SUCCESS
 ```
 
-Les rapports Robot Framework sont archivés automatiquement par Jenkins.
+Les résultats détaillés sont disponibles dans les artefacts du build Jenkins.
 
 ---
 
-# Gestion des défauts connus
+# Versionnement Git
 
-Les scénarios mettant en évidence un écart entre l'US et l'application sont conservés avec le tag :
-
-```text
-defect
-```
-
-Pour exécuter la campagne sans les défauts connus :
-
-```powershell
-py -m robot --skip defect --outputdir results tests
-```
-
-Neuf scénarios sont actuellement ignorés dans la campagne :
+Le projet est hébergé dans un dépôt GitHub public :
 
 ```text
-US07 - Le formulaire de réservation doit contenir un message obligatoire
-US07 - Une demande de réservation doit créer un message côté hôte
-US08 - Une nouvelle demande doit avoir le statut NOUVEAU
-US08 - Une réservation initiale doit proposer l'action Annuler au voyageur
-ANN-04-US - Le titre seul devrait permettre de quitter l'étape Information selon l'US
-ANN-08-US - L'adresse seule devrait permettre de quitter l'étape Localisation selon l'US
-TR-03 - Après confirmation le statut Hôte doit être ATTENTE DE PAIEMENT
-TR-04 - Le refus Hôte rend la réservation REFUSE des deux côtés
-MDP-03 - L'email de réinitialisation ne peut pas être envoyé pour un compte connu
+https://github.com/nicot78-lab/pfb-homey-automation
 ```
 
-Ils pourront être réactivés lorsque les anomalies ou écarts auront été corrigés.
+Branche principale :
+
+```text
+main
+```
+
+Les modifications sont enregistrées avec des commits Git afin de conserver l'historique du projet.
+
+Dernière mise en conformité de l'architecture POM :
+
+```text
+a1c10e9 - Mise en conformité POM des tests Robot Framework
+```
 
 ---
 
-# Principes de reproductibilité
+# Reproductibilité
 
 Les principes appliqués sont :
 
-- absence de mots de passe dans Git ;
+- aucune donnée sensible enregistrée dans Git ;
 - utilisation de variables d'environnement ;
 - utilisation de Jenkins Credentials ;
 - données uniques pour les créations de comptes ;
 - titres uniques pour les annonces ;
 - image de test versionnée ;
-- ressources séparées par domaine ;
-- sélecteurs stables lorsque cela est possible ;
-- tests indépendants ;
+- variables communes externalisées ;
+- sélecteurs et actions techniques placés dans les ressources ;
+- séparation entre scénarios de tests et logique des pages ;
 - absence de chemins Windows personnels dans les scénarios ;
 - dépendances documentées dans `requirements.txt` ;
-- commandes d'exécution documentées ;
-- exécution locale et Jenkins sur les mêmes suites.
+- même commande de campagne en local et dans Jenkins ;
+- rapports Robot Framework générés automatiquement.
 
 ---
 
@@ -900,7 +775,7 @@ Ignorés                     : 9
 Jenkins                     : SUCCESS
 ```
 
-La chaîne d'automatisation est opérationnelle :
+Chaîne d'automatisation :
 
 ```text
 GitHub
