@@ -792,3 +792,6 @@ Selenium / Chrome
    v
 Rapports de tests
 ```
+## Preuve d'exécution Jenkins
+
+![Build Jenkins réussi](jenkins-success.png)
