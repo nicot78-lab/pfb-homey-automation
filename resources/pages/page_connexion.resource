@@ -1,19 +1,19 @@
 *** Settings ***
-Library    SeleniumLibrary
+Library     SeleniumLibrary
+Resource    ../variables.robot
 
 
 *** Variables ***
-${champ nom_utilisateur}    css=#modal-login input[name='username']
-${champ mot de passe}    css=#modal-login input[name='password']
-${bouton se connecter}    css=#modal-login button[type='submit']
+${champ nom_utilisateur}        css=#modal-login input[name='username']
+${champ mot de passe}           css=#modal-login input[name='password']
+${bouton se connecter}          css=#modal-login button[type='submit']
 
-${champ utilisateur valide}    %{HOMEY_VOYAGEUR_USER}
-${champ mot de passe valide}    %{HOMEY_VOYAGEUR_PASSWORD}
+${champ utilisateur valide}     ${VOYAGEUR_USER}
+${champ mot de passe valide}    ${VOYAGEUR_PASSWORD}
 
-${case souvenir connexion}    xpath=//div[@id='modal-login']//input[@type='checkbox']
-${lien mot de passe oublie}    xpath=//div[@id='modal-login']//a[contains(normalize-space(.),'mot de passe oublié')]
-
-${message connexion succes}    Login successful
+${case souvenir connexion}      xpath=//div[@id='modal-login']//input[@type='checkbox']
+${lien mot de passe oublie}     xpath=//div[@id='modal-login']//a[contains(normalize-space(.),'mot de passe oublié')]
+${message connexion succes}     Login successful
 
 
 *** Keywords ***
@@ -173,7 +173,6 @@ Préparer la capture de la réponse de connexion
 
 Soumettre la connexion et vérifier le succès
     Préparer la capture de la réponse de connexion
-
     Soumettre le formulaire de connexion
 
     Wait Until Location Contains
